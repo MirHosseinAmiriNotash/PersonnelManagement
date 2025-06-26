@@ -81,7 +81,7 @@ class EmployeeSeeder extends Seeder
             'phone' => '09156677889',
             'hire_date' => Jalalian::fromFormat('Y-m-d', '1399-10-12')->toCarbon()->toDateString(), // 2021-01-01
             'birth_date' => Jalalian::fromFormat('Y-m-d', '1359-02-12')->toCarbon()->toDateString(), // 1980-05-01
-            'education_level' => 'middle_school' // برای پوشش کامل ENUM
+            'education_level' => 'middle_school' 
         ]);
     }
 }
