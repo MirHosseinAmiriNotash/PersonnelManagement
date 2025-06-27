@@ -11,5 +11,5 @@ Route::get('/Employees' , [EmployeeController::class, 'index']);
 Route::post('/Employees',[EmployeeController::class , 'store']);
 Route::get('/Employees/{id}',[EmployeeController::class, 'show']);
 Route::put('Employees/{id}', [EmployeeController::class, 'update']);
-Route::delete('/Employess/{id}',[EmployeeController::class, 'destroy']);
+Route::delete('/Employees/{id}',[EmployeeController::class, 'destroy']);
 Route::get('Employees/search/department/{department}',[EmployeeController::class,'searchByDepartment']);
