@@ -7,7 +7,7 @@ use GuzzleHttp\Promise\Create;
 use Illuminate\Http\Request;
 use Morilog\Jalali\Jalalian;
 use Illuminate\Validation\Rule;
-
+use Carbon\Carbon;
 
 class EmployeeController extends Controller{
     /**
@@ -15,8 +15,8 @@ class EmployeeController extends Controller{
      */
     public function index(){
         $employees = Employee::all()->map(function($employee){
-           $employee->hire_date = Jalalian::fromCarbon($employee->hire_date)->format('Y-m-d');
-           $employee->birth_date = Jalalian::fromCarbon($employee->birth_date)->format('Y-m-d');
+           $employee->hire_date = Jalalian::fromCarbon(Carbon::parse($employee->hire_date))->format('Y-m-d');
+           $employee->birth_date = Jalalian::fromCarbon(Carbon::parse($employee->birth_date))->format('Y-m-d');
            return $employee;
         });
         return response()->json($employees);
@@ -70,8 +70,8 @@ class EmployeeController extends Controller{
 
                 $employee = Employee::create($data);
 
-                $employee->hire_date = Jalalian::fromCarbon($employee->hire_date)->format('Y-m-d');
-                $employee->birth_date = Jalalian::fromCarbon($employee->birth_date)->format('Y-m-d');
+                $employee->hire_date = Jalalian::fromCarbon(Carbon::parse($employee->hire_date))->format('Y-m-d');
+                $employee->birth_date = Jalalian::fromCarbon(Carbon::parse($employee->birth_date))->format('Y-m-d');
 
                 return response()->json([
                     'message' => 'اطلاعات کارمند با موفقیت ثبت شد',
@@ -86,8 +86,8 @@ class EmployeeController extends Controller{
     public function show($id){
         $employee = Employee::find($id);
         if($employee){
-            $employee->hire_date = Jalalian::fromCarbon($employee->hire_date)->format('Y-m-d');
-            $employee->birth_date = Jalalian::fromCarbon($employee->birth_date)->format('Y-m-d');
+            $employee->hire_date = Jalalian::fromCarbon(Carbon::parse($employee->hire_date))->format('Y-m-d');
+            $employee->birth_date = Jalalian::fromCarbon(Carbon::parse($employee->birth_date))->format('Y-m-d');
             return response()->json($employee);
         }   
         return response()->json(['message' => 'کارمند یافت نشد'],404);   
@@ -145,8 +145,8 @@ class EmployeeController extends Controller{
 
             $employee->update($data);
 
-            $employee->hire_date = Jalalian::fromCarbon($employee->hire_date)->format('Y-m-d');
-            $employee->birth_date = Jalalian::fromCarbon($employee->birth_date)->format('Y-m-d');
+            $employee->hire_date = Jalalian::fromCarbon(Carbon::parse($employee->hire_date))->format('Y-m-d');
+            $employee->birth_date = Jalalian::fromCarbon(Carbon::parse($employee->birth_date))->format('Y-m-d');
             
             return response()->json([
                 'message' => 'کارمند با موفقیت به روزرسانی شد',
@@ -174,8 +174,8 @@ class EmployeeController extends Controller{
     public function searchByDepartment($department){
         $employees = Employee::where('department','like','%' . $department . '%')->get()->map
             (function($employee){
-                $employee->hire_date = Jalalian::fromCarbon($employee->hire_date)->format('Y-m-d');
-                $employee->birth_date = Jalalian::fromCarbon($employee->birth_date)->format('Y-m-d');
+                $employee->hire_date = Jalalian::fromCarbon(Carbon::parse($employee->hire_date))->format('Y-m-d');
+                $employee->birth_date = Jalalian::fromCarbon(Carbon::parse($employee->birth_date))->format('Y-m-d');
                 return $employee;
             });
             return response()->json($employees);
