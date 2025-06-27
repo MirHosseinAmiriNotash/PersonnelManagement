@@ -165,7 +165,9 @@ class EmployeeController extends Controller{
         $employee = Employee::find($id);
         if($employee){
             $employee->delete();
-            return response()->json(['message' => 'کارمند با موفقیت حذف شد']);
+            return response()->json([
+                'message' => 'کارمند با موفقیت حذف شد',
+                'employee' => $employee ]);
         }
         return response()->json(['message'=>'کارمند یافت نشد'],404);
     }
