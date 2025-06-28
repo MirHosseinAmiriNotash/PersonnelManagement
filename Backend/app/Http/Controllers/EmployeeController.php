@@ -171,7 +171,7 @@ class EmployeeController extends Controller{
             $employee->hire_date = Jalalian::fromCarbon(Carbon::parse($employee->hire_date))->format('Y-m-d');
             $employee->birth_date = Jalalian::fromCarbon(Carbon::parse($employee->birth_date))->format('Y-m-d');
             
-            return response()->json([
+            return response()->json(data: [
                 'message' => 'کارمند با موفقیت به روزرسانی شد',
                 'employee'=> $employee 
             ]);
@@ -179,6 +179,7 @@ class EmployeeController extends Controller{
      
         }
         
+    return response()->json(['message' => 'کارمند یافت نشد'],404);
 }
 
     /**
