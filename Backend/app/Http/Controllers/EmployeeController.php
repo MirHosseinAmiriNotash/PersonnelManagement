@@ -10,6 +10,15 @@ use Illuminate\Validation\Rule;
 use Carbon\Carbon;
 
 class EmployeeController extends Controller{
+
+
+    /**
+     * Normalize string by trimming and replacing multiple spaces with a single space
+     */
+
+     private function normalizeString($string){
+        return preg_replace('/\s+/',' ',trim($string));
+     }
     /**
      * return All Employees
      */
@@ -62,6 +71,10 @@ class EmployeeController extends Controller{
                     'education_level.required' => 'سطح تحصیلات الزامی است',
                     'education_level.in' => 'سطح تحصیلات باید یکی از مقادیر مجاز باشد',
                 ]);
+
+                $data['FirstName'] = $this->normalizeString($data['FirstName']);
+                $data['LastName'] = $this->normalizeString($data['LastName']);
+                $data['department'] = $this->normalizeString($data['department']);
 
                 $data['hire_date'] = Jalalian::fromformat('Y-m-d', $data['hire_date'])->toCarbon()
                 ->toDateString();
@@ -135,7 +148,17 @@ class EmployeeController extends Controller{
                 'education_level.in' => 'سطح تحصیلات باید یکی از مقادیر مجاز باشد',
             ]);
 
-          
+            if(isset($data['FirstName'])){
+                $data['FirstName'] = $this->normalizeString($data['FirstName']);
+            }
+            if(isset($data['LastName'])){
+                $data['LastName'] = $this->normalizeString($data['LastName']);
+            }
+            if(isset($data['department'])){
+                $data['department'] = $this->normalizeString($data['department']);
+            }
+
+            
             if (isset($data['hire_date'])) {
                 $data['hire_date'] = Jalalian::fromFormat('Y-m-d', $data['hire_date'])->toCarbon()->toDateString();
             }
@@ -174,10 +197,14 @@ class EmployeeController extends Controller{
 
 
     public function searchByDepartment($department){
-        $employees = Employee::where('department','like','%' . $department . '%')->get()->map
-            (function($employee){
-                $employee->hire_date = Jalalian::fromCarbon(Carbon::parse($employee->hire_date))->format('Y-m-d');
-                $employee->birth_date = Jalalian::fromCarbon(Carbon::parse($employee->birth_date))->format('Y-m-d');
+        $normalizedDepartment = $this->normalizeString($department);
+        $employees = Employee::whereRaw("REGEXP_REPLACE(department,'\s+', ' ') LIKE ?",['%' . $normalizedDepartment . '%'])
+        ->get()
+        ->map(function($employee){
+                $employee->hire_date = Jalalian::fromCarbon(Carbon::parse
+                ($employee->hire_date))->format('Y-m-d');
+                $employee->birth_date = Jalalian::fromCarbon(Carbon::parse
+                ($employee->birth_date))->format('Y-m-d');
                 return $employee;
             });
             return response()->json($employees);
