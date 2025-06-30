@@ -17,6 +17,9 @@ class EmployeeController extends Controller{
      */
 
      private function normalizeString($string){
+        if(is_null($string) || !is_string($string)){
+            return $string;
+        }
         return preg_replace('/\s+/',' ',trim($string));
      }
     /**
@@ -168,12 +171,13 @@ class EmployeeController extends Controller{
 
             $employee->update($data);
 
-            $employee->hire_date = Jalalian::fromCarbon(Carbon::parse($employee->hire_date))->format('Y-m-d');
-            $employee->birth_date = Jalalian::fromCarbon(Carbon::parse($employee->birth_date))->format('Y-m-d');
+            $responseEmployee = $employee->fresh(); 
+            $responseEmployee->hire_date = Jalalian::fromCarbon(Carbon::parse($responseEmployee->hire_date))->format('Y-m-d');
+            $responseEmployee->birth_date = Jalalian::fromCarbon(Carbon::parse($responseEmployee->birth_date))->format('Y-m-d');
             
             return response()->json(data: [
                 'message' => 'کارمند با موفقیت به روزرسانی شد',
-                'employee'=> $employee 
+                'employee'=> $responseEmployee 
             ]);
                 
      
