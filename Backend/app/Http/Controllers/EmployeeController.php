@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
+use App\Enums\EducationLevelEnum;
 
 use App\Models\Employee;
 use GuzzleHttp\Promise\Create;
@@ -8,6 +9,7 @@ use Illuminate\Http\Request;
 use Morilog\Jalali\Jalalian;
 use Illuminate\Validation\Rule;
 use Carbon\Carbon;
+use function Termwind\parse;
 
 class EmployeeController extends Controller{
 
@@ -29,6 +31,7 @@ class EmployeeController extends Controller{
         $employees = Employee::all()->map(function($employee){
            $employee->hire_date = Jalalian::fromCarbon(Carbon::parse($employee->hire_date))->format('Y-m-d');
            $employee->birth_date = Jalalian::fromCarbon(Carbon::parse($employee->birth_date))->format('Y-m-d');
+           $employee->education_level_fa = EducationLevelEnum::from($employee->education_level)->toFarsi();
            return $employee;
         });
         return response()->json($employees);
@@ -78,7 +81,13 @@ class EmployeeController extends Controller{
                 $data['FirstName'] = $this->normalizeString($data['FirstName']);
                 $data['LastName'] = $this->normalizeString($data['LastName']);
                 $data['department'] = $this->normalizeString($data['department']);
-
+                
+                $enum = EducationLevelEnum::fromFarsi($this->normalizeString($data['education_level']));
+                if (!$enum) {
+                    return response()->json(['message' => 'مقدار سطح تحصیلات نامعتبر است'], 422);
+                }
+                $data['education_level'] = $enum->value;
+                
                 $data['hire_date'] = Jalalian::fromformat('Y-m-d', $data['hire_date'])->toCarbon()
                 ->toDateString();
                 $data['birth_date'] = Jalalian::fromFormat('Y-m-d',$data['birth_date'])->toCarbon()
@@ -104,9 +113,11 @@ class EmployeeController extends Controller{
         if($employee){
             $employee->hire_date = Jalalian::fromCarbon(Carbon::parse($employee->hire_date))->format('Y-m-d');
             $employee->birth_date = Jalalian::fromCarbon(Carbon::parse($employee->birth_date))->format('Y-m-d');
+            $employee->education_level_fa = EducationLevelEnum::from($employee->education_level)->toFarsi();
+
             return response()->json($employee);
         }   
-        return response()->json(['message' => 'کارمند یافت نشد'],404);   
+        return response()->json(['message' => 'کارمند یافت نشد'],status: 200);   
     }
 
     /**
@@ -161,6 +172,14 @@ class EmployeeController extends Controller{
                 $data['department'] = $this->normalizeString($data['department']);
             }
 
+            if (isset($data['education_level'])) {
+                $enum = EducationLevelEnum::fromFarsi($this->normalizeString($data['education_level']));
+            if (!$enum) {
+                return response()->json(['message' => 'مقدار سطح تحصیلات نامعتبر است'], 422);
+        }
+               $data['education_level'] = $enum->value;
+    }
+
             
             if (isset($data['hire_date'])) {
                 $data['hire_date'] = Jalalian::fromFormat('Y-m-d', $data['hire_date'])->toCarbon()->toDateString();
@@ -200,19 +219,56 @@ class EmployeeController extends Controller{
         return response()->json(['message'=>'کارمند یافت نشد'],404);
     }
 
+    public function search(Request $request){ 
+         $query = Employee::query();
+         $textFields = ['FirstName', 'LastName'];
+          foreach ($textFields as $field) {
+              if ($request->filled($field)) {
+                 $normalized = preg_replace('/\s+/', '', $this->normalizeString($request->$field));
+                 $query->whereRaw("REGEXP_REPLACE($field, '\\s+', '') LIKE ?", ['%' . $normalized . '%']);
+        }
+    }
+         
+         if($request->filled('department')){
+            $query->whereRaw("REGEXP_REPLACE(department, '\\s+', ' ') LIKE ?", ['%' . $this->normalizeString($request->department) . '%']);
+         }
+         
+         $digitFields = ['phone', 'personnel_code', 'NationalId'];
+         foreach ($digitFields as $field) {
+             if ($request->filled($field)) {
+                 $digitsOnly = preg_replace('/\D+/', '', $request->$field);
+                 $query->whereRaw("REGEXP_REPLACE($field, '[^0-9]+', '') LIKE ?", ['%' . $digitsOnly . '%']);
+        }
+    }
+         
+         if($request->filled('education_level')){
+            $enum = EducationLevelEnum::fromFarsi($this->normalizeString($request->education_level));
+            if($enum){
+             $query->where('education_level', $enum->value);
+            } 
+        }
 
-    public function searchByDepartment($department){
-        $normalizedDepartment = $this->normalizeString($department);
-        $employees = Employee::whereRaw("REGEXP_REPLACE(department,'\s+', ' ') LIKE ?",['%' . $normalizedDepartment . '%'])
-        ->get()
-        ->map(function($employee){
-                $employee->hire_date = Jalalian::fromCarbon(Carbon::parse
-                ($employee->hire_date))->format('Y-m-d');
-                $employee->birth_date = Jalalian::fromCarbon(Carbon::parse
-                ($employee->birth_date))->format('Y-m-d');
-                return $employee;
-            });
-            return response()->json($employees);
+         if($request->filled('hire_date')){
+            $query->whereDate('hire_date','=',Jalalian::fromFormat('Y-m-d', $request->hire_date)->toCarbon()->toDateString());
+         }
+
+        if ($request->filled('birth_date')) {
+           $query->whereDate('birth_date', '=', Jalalian::fromFormat('Y-m-d', $request->birth_date)->toCarbon()->toDateString());
+         }
+
+         $employees = $query->get()->map(function($employee){
+         $employee->hire_date = Jalalian::fromCarbon(Carbon::parse($employee->hire_date))->format('Y-m-d');
+         $employee->birth_date = Jalalian::fromCarbon(Carbon::parse($employee->birth_date))->format('Y-m-d');
+         $employee->education_level_fa = EducationLevelEnum::from($employee->education_level)->toFarsi();
+         return $employee;
+    });
+
+    if ($employees->isEmpty()) {
+    return response()->json(['message' => 'هیچ کارمندی یافت نشد'], 200);
+}
+
+    return response()->json($employees);
+         
     }
 
 }
