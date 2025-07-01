@@ -241,12 +241,20 @@ class EmployeeController extends Controller{
         }
     }
          
-         if($request->filled('education_level')){
-            $enum = EducationLevelEnum::fromFarsi($this->normalizeString($request->education_level));
-            if($enum){
-             $query->where('education_level', $enum->value);
-            } 
-        }
+      if($request->filled('education_level')){
+         $levelInput = $this->normalizeString($request->education_level);
+
+         $enum = EducationLevelEnum::fromFarsi($levelInput);
+
+    
+    if (!$enum && EducationLevelEnum::tryFrom($levelInput)) {
+        $enum = EducationLevelEnum::from($levelInput);
+    }
+
+    if ($enum) {
+        $query->where('education_level', $enum->value);
+    }
+}
 
          if($request->filled('hire_date')){
             $query->whereDate('hire_date','=',Jalalian::fromFormat('Y-m-d', $request->hire_date)->toCarbon()->toDateString());
