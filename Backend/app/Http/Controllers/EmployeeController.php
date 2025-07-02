@@ -1,8 +1,9 @@
 <?php
 
 namespace App\Http\Controllers;
-use App\Enums\EducationLevelEnum;
 
+use App\Enums\EducationLevelEnum;
+use App\Exports\EmployeeExport;
 use App\Models\Employee;
 use GuzzleHttp\Promise\Create;
 use Illuminate\Http\Request;
@@ -24,6 +25,18 @@ class EmployeeController extends Controller{
         }
         return preg_replace('/\s+/',' ',trim($string));
      }
+
+     public function exportExcel(){
+        $export = new EmployeeExport();
+        $content = $export->export();
+
+        return response($content)
+            ->header('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+            ->header('Content-Disposition', 'attachment; filename="employees.xlsx"')
+            ->header('Cache-Control', 'max-age=0');
+        
+     }
+     
     /**
      * return All Employees
      */

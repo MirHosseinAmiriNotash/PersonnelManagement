@@ -12,3 +12,4 @@ Route::post('/Employees',[EmployeeController::class , 'store']);
 Route::get('/Employees/{id}',[EmployeeController::class, 'show']);
 Route::put('Employees/{id}', [EmployeeController::class, 'update']);
 Route::delete('/Employees/{id}',[EmployeeController::class, 'destroy']);
+Route::get('/export-employees', [EmployeeController::class, 'exportExcel']);
