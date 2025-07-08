@@ -1,14 +1,15 @@
 export interface Employee {
   id: number;
-  firstName: string;
-  lastName: string;
+  FirstName: string;
+  LastName: string;
   department: string;
-  personnelCode: string;
-  nationalId: string;
+  personnel_code: string;
+  NationalId: string;
   phone: string;
-  hireDate: Date; 
-  birthDate: Date;
-  educationLevel: 'middle_school' | 'diploma' | 'associate' | 'bachelor' | 'master' | 'phd';
+  hire_date: Date; 
+  birth_date: Date;
+  education_level: 'middle_school' | 'diploma' | 'associate' | 'bachelor' | 'master' | 'phd';
   createdAt?: string;
   updatedAt?: string;
 }
+

@@ -1,0 +1,36 @@
+.MainTable {
+  width: 80% !important;
+}
+.Header {
+  padding: 1.5%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  margin-block-end: 10%;
+  background: linear-gradient(to right, #ec6ead, #3494e6);
+  width: 100%;
+}
+.AppTitle {
+  color: #f3a59b;
+}
+.personnelCount {
+  padding: 5px;
+  margin: 5px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  color: white;
+}
+.titel {
+  color: #ffff;
+  padding-block-end: 3%;
+  padding: 10px;
+}
+.TableBody {
+  color: #ffff;
+  text-align: center;
+}
+
+.TableHead {
+  color: #fffe;
+}
