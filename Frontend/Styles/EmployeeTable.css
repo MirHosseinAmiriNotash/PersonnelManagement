@@ -1,3 +1,7 @@
+.TableHeader{
+  text-align: center !important;
+}
+
 .MainTable {
   width: 80% !important;
 }

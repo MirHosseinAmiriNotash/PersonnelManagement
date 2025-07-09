@@ -8,13 +8,12 @@ import {
   Title,
   ScrollArea,
 } from "@mantine/core";
-import { DeleteConfirmationModal } from "./DeleteConfirmationModal";
+import { openDeleteModal } from "./DeleteConfirmationModal";
 import "../Styles/EmployeeTable.css";
 import { notifications } from "@mantine/notifications";
 import moment from "moment-jalaali";
 import { fetchEmployees, deleteEmployee } from "../Service/EmployeeService";
 import type { Employee } from "../types/employee";
-
 
 const educationLevelMap: Record<Employee["education_level"], string> = {
   middle_school: "راهنمایی",
@@ -29,7 +28,6 @@ const EmployeeList: React.FC = () => {
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-
 
   const loadEmployees = async () => {
     setLoading(true);
@@ -50,27 +48,15 @@ const EmployeeList: React.FC = () => {
   };
 
   const handleDelete = async (id: number) => {
-    try {
-      await deleteEmployee(id);
-      setEmployees(employees.filter((employee) => employee.id !== id));
-      notifications.show({
-        title: "موفقیت",
-        message: "کارمند با موفقیت حذف شد",
-        color: "green",
-      });
-    } catch (err) {
-      throw err; 
-    }
+    await deleteEmployee(id);
+    setEmployees(employees.filter(employee => employee.id !== id));
   };
-
 
   useEffect(() => {
     loadEmployees();
-  }, []); 
-
+  }, []);
 
   const handleEdit = (employee: Employee) => {
- 
     notifications.show({
       title: "ویرایش",
       message: `ویرایش کارمند: ${employee.FirstName} ${employee.LastName}`,
@@ -78,8 +64,8 @@ const EmployeeList: React.FC = () => {
     });
   };
 
-
   const rows = employees.map((employee) => (
+    
     <Table.Tr key={employee.id}>
       <Table.Td>{employee.FirstName}</Table.Td>
       <Table.Td>{employee.LastName}</Table.Td>
@@ -100,20 +86,19 @@ const EmployeeList: React.FC = () => {
           >
             ویرایش
           </Button>
-          <DeleteConfirmationModal
-            onConfirm={() => handleDelete(employee.id)}
-            message={`آیا از حذف ${employee.FirstName} ${employee.LastName} اطمینان دارید؟`}
-          >
-            {(open) => (
-              <Button variant="outline" color="red" size="xs" onClick={open}>
-                حذف
-              </Button>
-            )}
-          </DeleteConfirmationModal>
+
+          <Button variant="outline" color="red" size="xs" onClick={() => openDeleteModal({
+            onConfirm : () => handleDelete(employee.id),
+            itemName : `${employee.FirstName} ${employee.LastName}`
+          })}>
+            حذف
+          </Button>
         </Group>
       </Table.Td>
     </Table.Tr>
+    
   ));
+  
 
   return (
     <div>
@@ -149,16 +134,16 @@ const EmployeeList: React.FC = () => {
           >
             <Table.Thead className="TableHead">
               <Table.Tr>
-                <Table.Th>نام</Table.Th>
-                <Table.Th>نام خانوادگی</Table.Th>
-                <Table.Th>دپارتمان</Table.Th>
-                <Table.Th>کد پرسنلی</Table.Th>
-                <Table.Th>کدملی</Table.Th>
-                <Table.Th>تلفن</Table.Th>
-                <Table.Th>تاریخ استخدام</Table.Th>
-                <Table.Th>تاریخ تولد</Table.Th>
-                <Table.Th>سطح تحصیلات</Table.Th>
-                <Table.Th>عملیات</Table.Th>
+                <Table.Th className="TableHeader">نام</Table.Th>
+                <Table.Th className="TableHeader">نام خانوادگی</Table.Th>
+                <Table.Th className="TableHeader">دپارتمان</Table.Th>
+                <Table.Th className="TableHeader">کد پرسنلی</Table.Th>
+                <Table.Th className="TableHeader">کدملی</Table.Th>
+                <Table.Th className="TableHeader">تلفن</Table.Th>
+                <Table.Th className="TableHeader">تاریخ استخدام</Table.Th>
+                <Table.Th className="TableHeader">تاریخ تولد</Table.Th>
+                <Table.Th className="TableHeader">سطح تحصیلات</Table.Th>
+                <Table.Th className="TableHeader">عملیات</Table.Th>
               </Table.Tr>
             </Table.Thead>
             <Table.Tbody className="TableBody">{rows}</Table.Tbody>
