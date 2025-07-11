@@ -1,4 +1,4 @@
-/* EmployeeForm.css */
+
 .dategroup {
   display: flex;
   flex-direction: column;
@@ -13,7 +13,7 @@
   display: block;
 }
 
-/* استایل‌های react-multi-date-picker */
+
 .rmdp-input {
   width: 100%;
   padding: 8px !important;

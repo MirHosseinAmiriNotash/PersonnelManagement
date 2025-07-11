@@ -46,7 +46,7 @@ const EmployeeList: React.FC = () => {
     const handleFormSubmit = async (values: Omit<Employee, "id">) => {
     try {
       if (currentEmployee) {
-        // ویرایش کارمند موجود
+        
         await updateEmployee(currentEmployee.id, values);
         notifications.show({
           title: "موفق",
@@ -54,7 +54,7 @@ const EmployeeList: React.FC = () => {
           color: "green",
         });
       } else {
-        // افزودن کارمند جدید
+        
         await createEmployee(values);
         notifications.show({
           title: "موفق",
@@ -100,13 +100,7 @@ const EmployeeList: React.FC = () => {
     loadEmployees();
   }, []);
 
-  // const handleEdit = (employee: Employee) => {
-  //   notifications.show({
-  //     title: "ویرایش",
-  //     message: `ویرایش کارمند: ${employee.FirstName} ${employee.LastName}`,
-  //     color: "blue",
-  //   });
-  // };
+
 
   const rows = employees.map((employee) => (
     

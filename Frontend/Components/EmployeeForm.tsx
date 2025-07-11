@@ -5,7 +5,7 @@ import persian from "react-date-object/calendars/persian";
 import persian_fa from "react-date-object/locales/persian_fa";
 import type { Employee } from "../types/employee";
 import "../Styles/EmployeeForm.css";
-import DateObject from "react-date-object";
+
 const educationLevelOptions = [
   { value: "middle_school", label: "سیکل" },
   { value: "diploma", label: "دیپلم" },
@@ -21,7 +21,11 @@ interface EmployeeFormProps {
   onCancel: () => void;
 }
 
-function EmployeeForm({ initialValues, onSubmit, onCancel }: EmployeeFormProps) {
+function EmployeeForm({
+  initialValues,
+  onSubmit,
+  onCancel,
+}: EmployeeFormProps) {
   const form = useForm({
     initialValues: {
       FirstName: initialValues?.FirstName || "",
@@ -30,35 +34,56 @@ function EmployeeForm({ initialValues, onSubmit, onCancel }: EmployeeFormProps) 
       personnel_code: initialValues?.personnel_code || "",
       NationalId: initialValues?.NationalId || "",
       phone: initialValues?.phone || "",
-      hire_date: initialValues?.hire_date || "", // تاریخ‌ها به صورت string
+      hire_date: initialValues?.hire_date || "", 
       birth_date: initialValues?.birth_date || "",
       education_level: initialValues?.education_level || "diploma",
     },
   });
 
-const handleSubmit = (values: typeof form.values) => {
-  const formattedValues: Omit<Employee, "id"> = {
-    ...values,
-    hire_date: values.hire_date, // چون توی فرم رشته هست، نیازی به تبدیل نیست
-    birth_date: values.birth_date,
+  const convertPersianToEnglishNumerals = (str: string): string => {
+    const persianNumbers = [
+      /۰/g,
+      /۱/g,
+      /۲/g,
+      /۳/g,
+      /۴/g,
+      /۵/g,
+      /۶/g,
+      /۷/g,
+      /۸/g,
+      /۹/g,
+    ];
+    
+    const englishNumbers = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"];
+
+    for (let i = 0; i < 10; i++) {
+      str = str.replace(persianNumbers[i], englishNumbers[i]);
+    }
+    return str;
   };
-  console.log("education_level:", values.education_level);
-  onSubmit(formattedValues);
-  console.log(formattedValues);
-  
-};
+
+  const handleSubmit = (values: typeof form.values) => {
+    const formattedValues: Omit<Employee, "id"> = {
+      ...values,
+      hire_date: values.hire_date,
+      birth_date: values.birth_date,
+    };
+    console.log("education_level:", values.education_level);
+    onSubmit(formattedValues);
+    console.log(formattedValues);
+  };
 
   return (
     <form onSubmit={form.onSubmit(handleSubmit)}>
       <div
         className="mainform"
-        style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "16px" }}
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(2, 1fr)",
+          gap: "16px",
+        }}
       >
-        <TextInput
-          label="نام"
-          required
-          {...form.getInputProps("FirstName")}
-        />
+        <TextInput label="نام" required {...form.getInputProps("FirstName")} />
         <TextInput
           label="نام خانوادگی"
           required
@@ -79,11 +104,7 @@ const handleSubmit = (values: typeof form.values) => {
           required
           {...form.getInputProps("NationalId")}
         />
-        <TextInput
-          label="تلفن"
-          required
-          {...form.getInputProps("phone")}
-        />
+        <TextInput label="تلفن" required {...form.getInputProps("phone")} />
         <Select
           label="سطح تحصیلات"
           required
@@ -105,7 +126,10 @@ const handleSubmit = (values: typeof form.values) => {
             value={form.values.hire_date || ""}
             onChange={(date) => {
               const formatted = date?.format?.("YYYY-MM-DD") || "";
-              form.setFieldValue("hire_date", formatted);
+
+              const englishNumeralsFormatted =
+                convertPersianToEnglishNumerals(formatted);
+              form.setFieldValue("hire_date", englishNumeralsFormatted);
             }}
           />
         </Box>
@@ -124,7 +148,9 @@ const handleSubmit = (values: typeof form.values) => {
             value={form.values.birth_date || ""}
             onChange={(date) => {
               const formatted = date?.format?.("YYYY-MM-DD") || "";
-              form.setFieldValue("birth_date", formatted);
+              const englishNumeralsFormatted =
+                convertPersianToEnglishNumerals(formatted);
+              form.setFieldValue("birth_date", englishNumeralsFormatted);
             }}
           />
         </Box>
