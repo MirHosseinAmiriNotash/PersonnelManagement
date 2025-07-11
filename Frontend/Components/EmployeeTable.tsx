@@ -12,8 +12,10 @@ import { openDeleteModal } from "./DeleteConfirmationModal";
 import "../Styles/EmployeeTable.css";
 import { notifications } from "@mantine/notifications";
 import moment from "moment-jalaali";
-import { fetchEmployees, deleteEmployee } from "../Service/EmployeeService";
+import { fetchEmployees, deleteEmployee,createEmployee,updateEmployee } from "../Service/EmployeeService";
 import type { Employee } from "../types/employee";
+import  EmployeeForm  from "./EmployeeForm";
+
 
 const educationLevelMap: Record<Employee["education_level"], string> = {
   middle_school: "راهنمایی",
@@ -28,6 +30,48 @@ const EmployeeList: React.FC = () => {
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [showForm, setShowForm] = useState(false);
+  const [currentEmployee, setCurrentEmployee] = useState<Employee | null>(null);
+
+  const handleAddEmployee = () => {
+    setCurrentEmployee(null);
+    setShowForm(true);
+  };
+
+  const handleEdit = (employee: Employee) => {
+    setCurrentEmployee(employee);
+    setShowForm(true);
+  };
+
+    const handleFormSubmit = async (values: Omit<Employee, "id">) => {
+    try {
+      if (currentEmployee) {
+        // ویرایش کارمند موجود
+        await updateEmployee(currentEmployee.id, values);
+        notifications.show({
+          title: "موفق",
+          message: "اطلاعات کارمند با موفقیت ویرایش شد",
+          color: "green",
+        });
+      } else {
+        // افزودن کارمند جدید
+        await createEmployee(values);
+        notifications.show({
+          title: "موفق",
+          message: "کارمند جدید با موفقیت افزوده شد",
+          color: "green",
+        });
+      }
+      setShowForm(false);
+      loadEmployees();
+    } catch (error) {
+      notifications.show({
+        title: "خطا",
+        message: "عملیات با خطا مواجه شد",
+        color: "red",
+      });
+    }
+  };
 
   const loadEmployees = async () => {
     setLoading(true);
@@ -56,13 +100,13 @@ const EmployeeList: React.FC = () => {
     loadEmployees();
   }, []);
 
-  const handleEdit = (employee: Employee) => {
-    notifications.show({
-      title: "ویرایش",
-      message: `ویرایش کارمند: ${employee.FirstName} ${employee.LastName}`,
-      color: "blue",
-    });
-  };
+  // const handleEdit = (employee: Employee) => {
+  //   notifications.show({
+  //     title: "ویرایش",
+  //     message: `ویرایش کارمند: ${employee.FirstName} ${employee.LastName}`,
+  //     color: "blue",
+  //   });
+  // };
 
   const rows = employees.map((employee) => (
     
@@ -80,9 +124,7 @@ const EmployeeList: React.FC = () => {
         <Group>
           <Button
             variant="outline"
-            color="blue"
-            size="xs"
-            onClick={() => handleEdit(employee)}
+           onClick={() => handleEdit(employee)}
           >
             ویرایش
           </Button>
@@ -94,6 +136,7 @@ const EmployeeList: React.FC = () => {
             حذف
           </Button>
         </Group>
+    
       </Table.Td>
     </Table.Tr>
     
@@ -101,6 +144,7 @@ const EmployeeList: React.FC = () => {
   
 
   return (
+    
     <div>
       <div className="Header">
         <Title className="AppTitle" order={3} mb="md">
@@ -110,30 +154,44 @@ const EmployeeList: React.FC = () => {
           تعداد کل پرسنل: {employees.length}
         </span>
       </div>
+     
+       {showForm ? (
+      <EmployeeForm
+        initialValues={currentEmployee || undefined}
+        onSubmit={handleFormSubmit}
+        onCancel={() => setShowForm(false)}
+      />
+    ) : (
+      <>
+       <div className="main">
       <Title className="titel" order={4} mb="lg">
         لیست پرسنل :
       </Title>
-      {loading ? (
-        <Group justify="center">
-          <Loader size="lg" />
-        </Group>
-      ) : error ? (
-        <Text c="red">{error}</Text>
-      ) : employees.length === 0 ? (
-        <Text>هیچ پرسنلی یافت نشد</Text>
-      ) : (
-        <ScrollArea h={500}>
-          <Table
-            mx="auto"
-            className="MainTable"
-            striped
-            highlightOnHoverColor="#69808C"
-            highlightOnHover
-            withTableBorder
-            withColumnBorders
-          >
-            <Table.Thead className="TableHead">
-              <Table.Tr>
+        <Button onClick={handleAddEmployee}>
+        افزودن کارمند جدید
+      </Button>
+      </div>
+        {loading ? (
+          <Group justify="center">
+            <Loader size="lg" />
+          </Group>
+        ) : error ? (
+          <Text c="red">{error}</Text>
+        ) : employees.length === 0 ? (
+          <Text>هیچ پرسنلی یافت نشد</Text>
+        ) : (
+          <ScrollArea h={500}>
+            <Table
+              mx="auto"
+              className="MainTable"
+              striped
+              highlightOnHoverColor="#69808C"
+              highlightOnHover
+              withTableBorder
+              withColumnBorders
+            >
+              <Table.Thead className="TableHead">
+                  <Table.Tr>
                 <Table.Th className="TableHeader">نام</Table.Th>
                 <Table.Th className="TableHeader">نام خانوادگی</Table.Th>
                 <Table.Th className="TableHeader">دپارتمان</Table.Th>
@@ -145,12 +203,15 @@ const EmployeeList: React.FC = () => {
                 <Table.Th className="TableHeader">سطح تحصیلات</Table.Th>
                 <Table.Th className="TableHeader">عملیات</Table.Th>
               </Table.Tr>
-            </Table.Thead>
-            <Table.Tbody className="TableBody">{rows}</Table.Tbody>
-          </Table>
-        </ScrollArea>
-      )}
-    </div>
+              </Table.Thead>
+              <Table.Tbody className="TableBody">{rows}</Table.Tbody>
+            </Table>
+          </ScrollArea>
+        )}
+      </>
+    )}
+  </div>
+    
   );
 };
 

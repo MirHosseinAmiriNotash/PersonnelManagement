@@ -95,7 +95,13 @@ class EmployeeController extends Controller{
                 $data['LastName'] = $this->normalizeString($data['LastName']);
                 $data['department'] = $this->normalizeString($data['department']);
                 
-                $enum = EducationLevelEnum::fromFarsi($this->normalizeString($data['education_level']));
+                  $levelInput = $this->normalizeString($data['education_level']);
+                $enum = EducationLevelEnum::fromFarsi($levelInput);
+
+                if (!$enum && EducationLevelEnum::tryFrom($levelInput)) {
+                    $enum = EducationLevelEnum::from($levelInput);
+                }
+
                 if (!$enum) {
                     return response()->json(['message' => 'مقدار سطح تحصیلات نامعتبر است'], 422);
                 }
@@ -185,13 +191,19 @@ class EmployeeController extends Controller{
                 $data['department'] = $this->normalizeString($data['department']);
             }
 
-            if (isset($data['education_level'])) {
-                $enum = EducationLevelEnum::fromFarsi($this->normalizeString($data['education_level']));
-            if (!$enum) {
-                return response()->json(['message' => 'مقدار سطح تحصیلات نامعتبر است'], 422);
-        }
+          if (isset($data['education_level'])) {
+                $levelInput = $this->normalizeString($data['education_level']);
+                $enum = EducationLevelEnum::fromFarsi($levelInput);
+
+                if (!$enum && EducationLevelEnum::tryFrom($levelInput)) {
+                    $enum = EducationLevelEnum::from($levelInput);
+                }
+
+                if (!$enum) {
+                    return response()->json(['message' => 'مقدار سطح تحصیلات نامعتبر است'], 422);
+                }
                $data['education_level'] = $enum->value;
-    }
+            }
 
             
             if (isset($data['hire_date'])) {
