@@ -1,4 +1,6 @@
-
+.m_8fb7ebe7 {
+  text-align: right !important;
+}
 .dategroup {
   display: flex;
   flex-direction: column;
@@ -13,29 +15,28 @@
   display: block;
 }
 
-
 .rmdp-input {
   width: 100%;
   padding: 8px !important;
-  font-family: var(--mantine-font-family); 
+  font-family: var(--mantine-font-family);
   /* border-color: var(--mantine-color-gray-4); */
   font-size: var(--mantine-font-size-sm);
-  border:calc(0.0625rem * var(--mantine-scale)) solid #424242 !important;
+  border: calc(0.0625rem * var(--mantine-scale)) solid #424242 !important;
   border-radius: calc(0.25rem * 1);
-  transition: border-color 100ms ease ; 
+  transition: border-color 100ms ease;
   color: #c9c9c9;
   height: calc(2.25rem * 1);
   display: block;
-      background-color: rgb(46, 46, 46);    
+  background-color: rgb(46, 46, 46);
 }
 .rmdp-input:focus {
   border-color: #228be6;
   box-shadow: 0 0 0 1px #228be6;
 }
-.mainform{
-    padding: 20px;
+.mainform {
+  padding: 20px;
 }
 
-.buttonGoup{
-    padding: 12px;
+.buttonGoup {
+  padding: 12px;
 }
