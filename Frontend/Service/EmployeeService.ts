@@ -1,6 +1,7 @@
 import { request } from "../api/request";
 import { getApiUrl } from "../api/endpoints";
 import type { Employee } from "../types/employee";
+import instance from "axios";
 
 export const fetchEmployees = async (): Promise<Employee[]> => {
   const data = await request<Employee[]>(
@@ -39,4 +40,17 @@ export const deleteEmployee = async (id: number): Promise<void> => {
     "delete",
     getApiUrl("getOneEmpById_UpdateAndDeleteEMP").replace("{id}", id.toString())
   );
+};
+
+export const exportEmployees = async (): Promise<Blob> => {
+  try {
+    const response = await instance.get<Blob>( 
+      getApiUrl("exportExcel"),
+      { responseType: 'blob' } 
+    );
+    return response.data; 
+  } catch (error) {
+    console.error("خطا در تهیه خروجی اکسل:", error);
+    throw error;
+  }
 };

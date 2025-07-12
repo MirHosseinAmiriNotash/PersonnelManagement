@@ -12,17 +12,17 @@ import { openDeleteModal } from "./DeleteConfirmationModal";
 import "../Styles/EmployeeTable.css";
 import { notifications } from "@mantine/notifications";
 import moment from "moment-jalaali";
-import { fetchEmployees, deleteEmployee,createEmployee,updateEmployee } from "../Service/EmployeeService";
+import { fetchEmployees, deleteEmployee,createEmployee,updateEmployee,exportEmployees} from "../Service/EmployeeService";
 import type { Employee } from "../types/employee";
 import  EmployeeForm  from "./EmployeeForm";
 
 
 const educationLevelMap: Record<Employee["education_level"], string> = {
-  middle_school: "راهنمایی",
+  middle_school: "سیکل",
   diploma: "دیپلم",
-  associate: "کاردانی",
-  bachelor: "کارشناسی",
-  master: "کارشناسی ارشد",
+  associate: "فوق دیپلم",
+  bachelor: "لیسانس",
+  master: "فوق لیسانس",
   phd: "دکتری",
 };
 
@@ -32,6 +32,35 @@ const EmployeeList: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [currentEmployee, setCurrentEmployee] = useState<Employee | null>(null);
+
+const handleExportExcel = async () => {
+  try {
+    const blob = await exportEmployees(); 
+    
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a'); 
+    a.href = url;
+    a.download = 'employees.xlsx';
+    document.body.appendChild(a); 
+    a.click(); 
+    a.remove();
+    window.URL.revokeObjectURL(url); 
+    notifications.show({
+      title: "موفق",
+      message: "خروجی اکسل با موفقیت آماده شد",
+      color: "green",
+    });
+  } catch (error) {
+    notifications.show({
+      title: "خطا",
+      message: "خطا در تهیه خروجی اکسل",
+      color: "red",
+    });
+  }
+};
+
+
+
 
   const handleAddEmployee = () => {
     setCurrentEmployee(null);
@@ -162,7 +191,10 @@ const EmployeeList: React.FC = () => {
       <Title className="titel" order={4} mb="lg">
         لیست پرسنل :
       </Title>
-        <Button onClick={handleAddEmployee}>
+       <Button onClick={handleExportExcel} variant="light" color="green">
+            خروجی اکسل
+          </Button>
+        <Button onClick={handleAddEmployee} variant="light">
         افزودن کارمند جدید
       </Button>
       </div>

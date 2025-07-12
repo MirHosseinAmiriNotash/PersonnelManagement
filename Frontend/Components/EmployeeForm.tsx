@@ -9,9 +9,9 @@ import "../Styles/EmployeeForm.css";
 const educationLevelOptions = [
   { value: "middle_school", label: "سیکل" },
   { value: "diploma", label: "دیپلم" },
-  { value: "associate", label: "کاردانی" },
-  { value: "bachelor", label: "کارشناسی" },
-  { value: "master", label: "کارشناسی ارشد" },
+  { value: "associate", label: "فوق دیپلم" },
+  { value: "bachelor", label: "لیسانس" },
+  { value: "master", label: "فوق لیسانس" },
   { value: "phd", label: "دکتری" },
 ];
 

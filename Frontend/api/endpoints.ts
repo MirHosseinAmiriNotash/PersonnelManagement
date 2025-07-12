@@ -4,7 +4,7 @@ const endpoints = {
     search : "Employees/search",
     getAllEmployees_AndStore : "Employees",
     getOneEmpById_UpdateAndDeleteEMP : "Employees/{id}",
-    eportExcel : "export-employees"
+    exportExcel : "export-employees"
 };
 
 export const getApiUrl = (key : keyof typeof endpoints) => {
