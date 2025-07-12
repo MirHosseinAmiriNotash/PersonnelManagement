@@ -1,8 +1,14 @@
-
-.TableHeader{
+:root {
+  --title-text-color: #e0ffff;
+  --header-backgroundcolor:linear-gradient(to right, #ec6ead, #3494e6);
+  --persennelCount-color : hsl(136, 0%, 100%);
+  --table-title-color : hsl(0, 0%, 100%);
+  --table-th-color : hsl(60, 100%, 100%);
+}
+.TableHeader {
   text-align: center !important;
 }
-.main{
+.main {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -17,13 +23,13 @@
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-  align-items:first baseline ;
+  align-items: first baseline;
   margin-block-end: 5%;
-  background: linear-gradient(to right, #ec6ead, #3494e6);
+  background: var(--header-backgroundcolor);
   width: 100%;
 }
 .AppTitle {
-  color: #f3a59b;
+  color: var(--title-text-color);
 }
 .personnelCount {
   padding: 5px;
@@ -31,19 +37,19 @@
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-  color: white;
+  color: var(--persennelCount-color);
 }
 .titel {
-  color: #ffff;
+  color: var(--table-title-color);
   padding-block-end: 3%;
   padding: 10px;
   display: inline;
 }
 .TableBody {
-  color: #ffff;
+  color: var(--table-title-color);
   text-align: center;
 }
 
 .TableHead {
-  color: #fffe;
+  color: var(--table-th-color);
 }

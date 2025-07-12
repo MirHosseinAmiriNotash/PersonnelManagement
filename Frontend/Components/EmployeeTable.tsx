@@ -118,6 +118,7 @@ const EmployeeList: React.FC = () => {
         <Group>
           <Button
             variant="outline"
+            size="xs"
            onClick={() => handleEdit(employee)}
           >
             ویرایش
