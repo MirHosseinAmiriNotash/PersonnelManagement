@@ -25,7 +25,7 @@
   border-radius: calc(0.25rem * 1);
   transition: border-color 100ms ease;
   color: #c9c9c9;
-  height: calc(2.25rem * 1);
+  height: calc(2.25rem * 1) !important;
   display: block;
   background-color: rgb(46, 46, 46);
 }

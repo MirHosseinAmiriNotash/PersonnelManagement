@@ -34,9 +34,33 @@ function EmployeeForm({
       personnel_code: initialValues?.personnel_code || "",
       NationalId: initialValues?.NationalId || "",
       phone: initialValues?.phone || "",
-      hire_date: initialValues?.hire_date || "", 
+      hire_date: initialValues?.hire_date || "",
       birth_date: initialValues?.birth_date || "",
       education_level: initialValues?.education_level || "diploma",
+    },
+    validate: {
+      FirstName: (value) => (value ? null : "نام نمی‌تواند خالی باشد"),
+      LastName: (value) => (value ? null : "نام خانوادگی نمی‌تواند خالی باشد"),
+      department: (value) => (value ? null : "دپارتمان نمی‌تواند خالی باشد"),
+      personnel_code: (value) =>
+        value && value.length > 5  && value.length < 26 && /^\d+$/.test(value) // فرض می‌کنیم کد پرسنلی 5 رقم است
+          ? null
+          : "کد پرسنلی باید بیشتر از 5 رقم و کمتر از 25 رقم و فقط عدد باشد",
+      NationalId: (value) =>
+        value && value.length === 10 && /^\d+$/.test(value) // کد ملی 10 رقمی
+          ? null
+          : "کد ملی باید 10 رقمی و فقط عدد باشد",
+      phone: (value) =>
+        value &&
+        value.length === 11 &&
+        /^\d+$/.test(value) &&
+        value.startsWith("09") // شماره موبایل 11 رقمی و شروع با 09
+          ? null
+          : "شماره تلفن باید 11 رقمی باشد (با 09 شروع شود و فقط عدد باشد)",
+      hire_date: (value) =>
+        value ? null : "تاریخ استخدام نمی‌تواند خالی باشد",
+      birth_date: (value) => (value ? null : "تاریخ تولد نمی‌تواند خالی باشد"),
+      education_level: (value) => (value ? null : "سطح تحصیلات را انتخاب کنید"),
     },
   });
 
@@ -53,7 +77,7 @@ function EmployeeForm({
       /۸/g,
       /۹/g,
     ];
-    
+
     const englishNumbers = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"];
 
     for (let i = 0; i < 10; i++) {
@@ -83,31 +107,40 @@ function EmployeeForm({
           gap: "16px",
         }}
       >
-        <TextInput label="نام" required {...form.getInputProps("FirstName")} />
+        <TextInput label="نام"  {...form.getInputProps("FirstName")} />
         <TextInput
           label="نام خانوادگی"
-          required
           {...form.getInputProps("LastName")}
         />
         <TextInput
           label="دپارتمان"
-          required
+          
           {...form.getInputProps("department")}
         />
         <TextInput
           label="کد پرسنلی"
-          required
+          
+          placeholder="مثال: 12345"
+          type="number"
           {...form.getInputProps("personnel_code")}
         />
         <TextInput
           label="کدملی"
-          required
+          
+          placeholder="مثال: 13635XXXXX"
+          type="number"
           {...form.getInputProps("NationalId")}
         />
-        <TextInput label="تلفن" required {...form.getInputProps("phone")} />
+        <TextInput
+          label="تلفن"
+          
+          {...form.getInputProps("phone")}
+          placeholder="مثال: 0914XXXXXXX"
+          type="tel"
+        />
         <Select
           label="سطح تحصیلات"
-          required
+          
           data={educationLevelOptions}
           {...form.getInputProps("education_level")}
         />
@@ -131,6 +164,7 @@ function EmployeeForm({
                 convertPersianToEnglishNumerals(formatted);
               form.setFieldValue("hire_date", englishNumeralsFormatted);
             }}
+            
           />
         </Box>
 
