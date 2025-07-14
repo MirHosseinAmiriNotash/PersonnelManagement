@@ -207,7 +207,7 @@ const handleExportExcel = async () => {
         ) : employees.length === 0 ? (
           <Text>هیچ پرسنلی یافت نشد</Text>
         ) : (
-          <ScrollArea h={500}>
+          <ScrollArea h={400}>
             <Table
               mx="auto"
               className="MainTable"
