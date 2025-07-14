@@ -54,3 +54,14 @@ export const exportEmployees = async (): Promise<Blob> => {
     throw error;
   }
 };
+
+export const searchEmployees = async (query: string): Promise<Employee[]> => {
+  try {
+   
+    const data = await request<Employee[]>("get", getApiUrl("search"), { query: query });
+    return data || [];
+  } catch (error) {
+    console.error("Error searching employees:", error);
+    return [];
+  }
+};

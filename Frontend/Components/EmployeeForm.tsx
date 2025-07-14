@@ -12,7 +12,7 @@ const educationLevelOptions = [
   { value: "associate", label: "فوق دیپلم" },
   { value: "bachelor", label: "لیسانس" },
   { value: "master", label: "فوق لیسانس" },
-  { value: "phd", label: "دکتری" },
+  { value: "phd", label: "دکترا" },
 ];
 
 interface EmployeeFormProps {
@@ -43,18 +43,18 @@ function EmployeeForm({
       LastName: (value) => (value ? null : "نام خانوادگی نمی‌تواند خالی باشد"),
       department: (value) => (value ? null : "دپارتمان نمی‌تواند خالی باشد"),
       personnel_code: (value) =>
-        value && value.length > 5  && value.length < 26 && /^\d+$/.test(value) // فرض می‌کنیم کد پرسنلی 5 رقم است
+        value && value.length > 5  && value.length < 26 && /^\d+$/.test(value) 
           ? null
           : "کد پرسنلی باید بیشتر از 5 رقم و کمتر از 25 رقم و فقط عدد باشد",
       NationalId: (value) =>
-        value && value.length === 10 && /^\d+$/.test(value) // کد ملی 10 رقمی
+        value && value.length === 10 && /^\d+$/.test(value) 
           ? null
           : "کد ملی باید 10 رقمی و فقط عدد باشد",
       phone: (value) =>
         value &&
         value.length === 11 &&
         /^\d+$/.test(value) &&
-        value.startsWith("09") // شماره موبایل 11 رقمی و شروع با 09
+        value.startsWith("09") 
           ? null
           : "شماره تلفن باید 11 رقمی باشد (با 09 شروع شود و فقط عدد باشد)",
       hire_date: (value) =>

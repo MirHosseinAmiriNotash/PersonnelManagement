@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState,useCallback } from "react";
 import {
   Table,
   Button,
@@ -7,12 +7,14 @@ import {
   Loader,
   Title,
   ScrollArea,
+  TextInput
 } from "@mantine/core";
+import { FiSearch } from "react-icons/fi";
 import { openDeleteModal } from "./DeleteConfirmationModal";
 import "../Styles/EmployeeTable.css";
 import { notifications } from "@mantine/notifications";
 import moment from "moment-jalaali";
-import { fetchEmployees, deleteEmployee,createEmployee,updateEmployee,exportEmployees} from "../Service/EmployeeService";
+import { fetchEmployees, deleteEmployee,createEmployee,updateEmployee,exportEmployees,searchEmployees} from "../Service/EmployeeService";
 import type { Employee } from "../types/employee";
 import  EmployeeForm  from "./EmployeeForm";
 
@@ -23,7 +25,7 @@ const educationLevelMap: Record<Employee["education_level"], string> = {
   associate: "فوق دیپلم",
   bachelor: "لیسانس",
   master: "فوق لیسانس",
-  phd: "دکتری",
+  phd: "دکترا",
 };
 
 const EmployeeList: React.FC = () => {
@@ -32,6 +34,8 @@ const EmployeeList: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [currentEmployee, setCurrentEmployee] = useState<Employee | null>(null);
+  const [searchItem, setSearchItem] = useState<string>("");
+
 
 const handleExportExcel = async () => {
   try {
@@ -93,32 +97,63 @@ const handleExportExcel = async () => {
       }
       setShowForm(false);
       loadEmployees();
-    } catch (error) {
+    } catch (error :any) {
+      const errorMessage = error.response?.data?.message ||
+                             (error.response?.data?.errors && Object.values(error.response.data.errors).flat().join(', ')) ||
+                             error.message || 
+                             "عملیات با خطا مواجه شد"; 
       notifications.show({
         title: "خطا",
-        message: "عملیات با خطا مواجه شد",
+        message: errorMessage,
         color: "red",
       });
+      console.error("Form submission error:", error);
     }
   };
 
-  const loadEmployees = async () => {
+  
+
+
+const convertPersianToEnglishNumerals = (str: string): string => {
+  const persianNumbers = [/۰/g, /۱/g, /۲/g, /۳/g, /۴/g, /۵/g, /۶/g, /۷/g, /۸/g, /۹/g];
+  const englishNumbers = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+
+  for (let i = 0; i < 10; i++) {
+    str = str.replace(persianNumbers[i], englishNumbers[i]);
+  }
+  return str;
+};
+
+
+const loadEmployees = useCallback(async () => {
     setLoading(true);
+    setError(null);
     try {
-      const data = await fetchEmployees();
+      let data: Employee[];
+      if (searchItem.trim() !== "") {
+        
+        const cleanedSearchTerm = convertPersianToEnglishNumerals(searchItem.trim());
+        data = await searchEmployees(cleanedSearchTerm);
+      } else {
+      
+        data = await fetchEmployees();
+      }
       setEmployees(data);
-      setError(null);
     } catch (err) {
-      setError("خطا در دریافت لیست پرسنل");
+      console.error("Failed to fetch employees:", err);
+      setError("خطا در بارگذاری اطلاعات کارمندان.");
       notifications.show({
         title: "خطا",
-        message: "نمی‌توان لیست پرسنل را دریافت کرد",
+        message: "مشکلی در بارگذاری لیست کارمندان پیش آمد.",
         color: "red",
       });
     } finally {
       setLoading(false);
     }
-  };
+  }, [searchItem]); 
+
+
+
 
   const handleDelete = async (id: number) => {
     await deleteEmployee(id);
@@ -127,7 +162,7 @@ const handleExportExcel = async () => {
 
   useEffect(() => {
     loadEmployees();
-  }, []);
+  }, [loadEmployees]);
 
 
 
@@ -187,6 +222,20 @@ const handleExportExcel = async () => {
       />
     ) : (
       <>
+        <TextInput
+          placeholder="جستجو"   
+          value={searchItem}
+          onChange={(event) => setSearchItem(event.currentTarget.value)}
+          onKeyDown={(event) => {
+            if(event.key === "Enter"){
+              loadEmployees();
+            }
+          }}
+          leftSection={
+            <FiSearch/>
+          }
+          style={{width: '50%', marginBottom: '20px', margin:'0px auto'}}
+      />
        <div className="main">
       <Title className="titel" order={4} mb="lg">
         لیست پرسنل :
@@ -198,6 +247,8 @@ const handleExportExcel = async () => {
         افزودن کارمند جدید
       </Button>
       </div>
+
+    
         {loading ? (
           <Group justify="center">
             <Loader size="lg" />
@@ -233,7 +284,7 @@ const handleExportExcel = async () => {
               </Table.Thead>
               <Table.Tbody className="TableBody">{rows}</Table.Tbody>
             </Table>
-          </ScrollArea>
+          </ScrollArea>  
         )}
       </>
     )}

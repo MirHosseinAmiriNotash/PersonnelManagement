@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Morilog\Jalali\Jalalian;
 use Illuminate\Validation\Rule;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 
 class EmployeeController extends Controller{
@@ -244,64 +245,60 @@ class EmployeeController extends Controller{
         return response()->json(['message'=>'کارمند یافت نشد'],404);
     }
 
-    public function search(Request $request){ 
-         $query = Employee::query();
-         $textFields = ['FirstName', 'LastName'];
-          foreach ($textFields as $field) {
-              if ($request->filled($field)) {
-                 $normalized = preg_replace('/\s+/', '', $this->normalizeString($request->$field));
-                 $query->whereRaw("REGEXP_REPLACE($field, '\\s+', '') LIKE ?", ['%' . $normalized . '%']);
+
+    public function search(Request $request) {
+        $query = $request->input('query');
+
+        if (empty($query)) {
+            
+            return $this->index();
         }
-    }
-         
-         if($request->filled('department')){
-            $query->whereRaw("REGEXP_REPLACE(department, '\\s+', ' ') LIKE ?", ['%' . $this->normalizeString($request->department) . '%']);
-         }
-         
-         $digitFields = ['phone', 'personnel_code', 'NationalId'];
-         foreach ($digitFields as $field) {
-             if ($request->filled($field)) {
-                 $digitsOnly = preg_replace('/\D+/', '', $request->$field);
-                 $query->whereRaw("REGEXP_REPLACE($field, '[^0-9]+', '') LIKE ?", ['%' . $digitsOnly . '%']);
+
+        
+        $normalizedQuery = $this->normalizeString($query);
+        $englishNumeralsQuery = preg_replace_callback('/[۰-۹]/u', function ($matches) {
+            $farsi_digits = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
+            $english_digits = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+            return str_replace($farsi_digits, $english_digits, $matches[0]);
+        }, $normalizedQuery);
+
+        
+        $educationLevelEnumValue = null;
+        try {
+            
+            $educationLevelEnumValue = EducationLevelEnum::fromFarsi($normalizedQuery)?->value;
+        } catch (\Throwable $th) {
+            
         }
-    }
-         
-      if($request->filled('education_level')){
-         $levelInput = $this->normalizeString($request->education_level);
 
-         $enum = EducationLevelEnum::fromFarsi($levelInput);
+        $employees = Employee::query()
+            ->where(function($q) use ($englishNumeralsQuery, $educationLevelEnumValue) {
+               
+                $q->where('FirstName', 'like', '%' . $englishNumeralsQuery . '%')
+                  ->orWhere('LastName', 'like', '%' . $englishNumeralsQuery . '%');
 
-    
-    if (!$enum && EducationLevelEnum::tryFrom($levelInput)) {
-        $enum = EducationLevelEnum::from($levelInput);
-    }
+               
+                $q->orWhere(DB::raw("CONCAT(FirstName, ' ', LastName)"), 'like', '%' . $englishNumeralsQuery . '%');
+                
+                $q->orWhere('department', 'like', '%' . $englishNumeralsQuery . '%');
+                
+                $q->orWhereRaw("REPLACE(personnel_code, ' ', '') LIKE ?", ['%' . str_replace(' ', '', $englishNumeralsQuery) . '%'])
+                  ->orWhereRaw("REPLACE(NationalId, ' ', '') LIKE ?", ['%' . str_replace(' ', '', $englishNumeralsQuery) . '%'])
+                  ->orWhereRaw("REPLACE(phone, ' ', '') LIKE ?", ['%' . str_replace(' ', '', $englishNumeralsQuery) . '%']);
 
-    if ($enum) {
-        $query->where('education_level', $enum->value);
-    }
-}
+                
+                if ($educationLevelEnumValue) {
+                    $q->orWhere('education_level', $educationLevelEnumValue);
+                }
+            })
+            ->get()->map(function($employee){
+                $employee->hire_date = Jalalian::fromCarbon(Carbon::parse($employee->hire_date))->format('Y-m-d');
+                $employee->birth_date = Jalalian::fromCarbon(Carbon::parse($employee->birth_date))->format('Y-m-d');
+                $employee->education_level_fa = EducationLevelEnum::from($employee->education_level)->toFarsi();
+                return $employee;
+            });
 
-         if($request->filled('hire_date')){
-            $query->whereDate('hire_date','=',Jalalian::fromFormat('Y-m-d', $request->hire_date)->toCarbon()->toDateString());
-         }
-
-        if ($request->filled('birth_date')) {
-           $query->whereDate('birth_date', '=', Jalalian::fromFormat('Y-m-d', $request->birth_date)->toCarbon()->toDateString());
-         }
-
-         $employees = $query->get()->map(function($employee){
-         $employee->hire_date = Jalalian::fromCarbon(Carbon::parse($employee->hire_date))->format('Y-m-d');
-         $employee->birth_date = Jalalian::fromCarbon(Carbon::parse($employee->birth_date))->format('Y-m-d');
-         $employee->education_level_fa = EducationLevelEnum::from($employee->education_level)->toFarsi();
-         return $employee;
-    });
-
-    if ($employees->isEmpty()) {
-    return response()->json(['message' => 'هیچ کارمندی یافت نشد'], 200);
-}
-
-    return response()->json($employees);
-         
+        return response()->json($employees);
     }
 
 }
