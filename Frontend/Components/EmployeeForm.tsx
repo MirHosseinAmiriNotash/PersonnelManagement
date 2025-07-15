@@ -43,20 +43,24 @@ function EmployeeForm({
       LastName: (value) => (value ? null : "نام خانوادگی نمی‌تواند خالی باشد"),
       department: (value) => (value ? null : "دپارتمان نمی‌تواند خالی باشد"),
       personnel_code: (value) =>
-        value && value.length > 5  && value.length < 26 && /^\d+$/.test(value) 
+        value && value.length > 5 && value.length < 26 && /^\d+$/.test(value)
           ? null
           : "کد پرسنلی باید بیشتر از 5 رقم و کمتر از 25 رقم و فقط عدد باشد",
-      NationalId: (value) =>
-        value && value.length === 10 && /^\d+$/.test(value) 
-          ? null
-          : "کد ملی باید 10 رقمی و فقط عدد باشد",
+      NationalId: (value) => {
+        if (!value || value.trim().length === 0) return "کد ملی را وارد کنید";
+
+        if (!/^(0\d{10}|\d{10})$/.test(value)) {
+          return "کد ملی باید ۱۰ یا ۱۱ رقمی باشد(11 رقم با 0 پیشوند)";
+        }
+        return null;
+      },
       phone: (value) =>
         value &&
         value.length === 11 &&
         /^\d+$/.test(value) &&
-        value.startsWith("09") 
+        value.startsWith("09")
           ? null
-          : "شماره تلفن باید 11 رقمی باشد (با 09 شروع شود و فقط عدد باشد)",
+          : "لطفا شماره تلفن معتبر وارد کنید(با 09 شروع شود و 11 رقم باشد)",
       hire_date: (value) =>
         value ? null : "تاریخ استخدام نمی‌تواند خالی باشد",
       birth_date: (value) => (value ? null : "تاریخ تولد نمی‌تواند خالی باشد"),
@@ -97,6 +101,20 @@ function EmployeeForm({
     console.log(formattedValues);
   };
 
+  const handleNumericInputChange = (
+    event: React.ChangeEvent<HTMLInputElement>,
+    fieldName: keyof Employee,
+    maxLength: number
+  ) => {
+    const inputValue = event.currentTarget.value;
+
+    const filteredValue = inputValue.replace(/[^0-9]/g, "");
+
+    const truncatedValue = filteredValue.slice(0, maxLength);
+
+    form.setFieldValue(fieldName, truncatedValue);
+  };
+
   return (
     <form onSubmit={form.onSubmit(handleSubmit)}>
       <div
@@ -107,40 +125,51 @@ function EmployeeForm({
           gap: "16px",
         }}
       >
-        <TextInput label="نام"  {...form.getInputProps("FirstName")} />
+        <TextInput
+          label="نام"
+          maxLength={50}
+          {...form.getInputProps("FirstName")}
+        />
         <TextInput
           label="نام خانوادگی"
+          maxLength={50}
           {...form.getInputProps("LastName")}
         />
         <TextInput
           label="دپارتمان"
-          
+          maxLength={50}
           {...form.getInputProps("department")}
         />
         <TextInput
           label="کد پرسنلی"
-          
           placeholder="مثال: 12345"
-          type="number"
-          {...form.getInputProps("personnel_code")}
+          type="text"
+          onChange={(event) =>
+            handleNumericInputChange(event, "personnel_code", 25)
+          }
+          value={form.values.personnel_code}
+          error={form.errors.personnel_code}
         />
         <TextInput
           label="کدملی"
-          
           placeholder="مثال: 13635XXXXX"
-          type="number"
-          {...form.getInputProps("NationalId")}
+          type="text"
+          onChange={(event) =>
+            handleNumericInputChange(event, "NationalId", 11)
+          }
+          value={form.values.NationalId}
+          error={form.errors.NationalId}
         />
         <TextInput
           label="تلفن"
-          
-          {...form.getInputProps("phone")}
           placeholder="مثال: 0914XXXXXXX"
-          type="tel"
+          type="text"
+          onChange={(event) => handleNumericInputChange(event, "phone", 11)}
+          value={form.values.phone}
+          error={form.errors.phone}
         />
         <Select
           label="سطح تحصیلات"
-          
           data={educationLevelOptions}
           {...form.getInputProps("education_level")}
         />
@@ -164,7 +193,6 @@ function EmployeeForm({
                 convertPersianToEnglishNumerals(formatted);
               form.setFieldValue("hire_date", englishNumeralsFormatted);
             }}
-            
           />
         </Box>
 
