@@ -258,7 +258,7 @@ const loadEmployees = useCallback(async () => {
         ) : employees.length === 0 ? (
           <Text>هیچ پرسنلی یافت نشد</Text>
         ) : (
-          <ScrollArea h={400}>
+          <ScrollArea h={350}>
             <Table
               mx="auto"
               className="MainTable"
