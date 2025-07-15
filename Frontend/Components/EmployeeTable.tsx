@@ -35,7 +35,8 @@ const EmployeeList: React.FC = () => {
   const [showForm, setShowForm] = useState(false);
   const [currentEmployee, setCurrentEmployee] = useState<Employee | null>(null);
   const [searchItem, setSearchItem] = useState<string>("");
-
+  const [totalEmployeesCount, setTotalEmployeesCount] = useState<number>(0);
+  const [initialLoadDone, setInitialLoadDone] = useState<boolean>(false);
 
 const handleExportExcel = async () => {
   try {
@@ -96,7 +97,7 @@ const handleExportExcel = async () => {
         });
       }
       setShowForm(false);
-      loadEmployees();
+      await loadEmployees(true);
     } catch (error :any) {
       const errorMessage = error.response?.data?.message ||
                              (error.response?.data?.errors && Object.values(error.response.data.errors).flat().join(', ')) ||
@@ -125,7 +126,7 @@ const convertPersianToEnglishNumerals = (str: string): string => {
 };
 
 
-const loadEmployees = useCallback(async () => {
+const loadEmployees = useCallback(async (updateTotalCount = false) => {
     setLoading(true);
     setError(null);
     try {
@@ -134,14 +135,23 @@ const loadEmployees = useCallback(async () => {
         
         const cleanedSearchTerm = convertPersianToEnglishNumerals(searchItem.trim());
         data = await searchEmployees(cleanedSearchTerm);
+        setEmployees(data);
       } else {
       
         data = await fetchEmployees();
+         setEmployees(data);
+        
+        if (updateTotalCount || !initialLoadDone) {
+          setTotalEmployeesCount(data.length);
+          if (!initialLoadDone) setInitialLoadDone(true); 
+        }
       }
+      
       setEmployees(data);
     } catch (err) {
       console.error("Failed to fetch employees:", err);
       setError("خطا در بارگذاری اطلاعات کارمندان.");
+      setTotalEmployeesCount(0); 
       notifications.show({
         title: "خطا",
         message: "مشکلی در بارگذاری لیست کارمندان پیش آمد.",
@@ -150,7 +160,7 @@ const loadEmployees = useCallback(async () => {
     } finally {
       setLoading(false);
     }
-  }, [searchItem]); 
+  }, [searchItem,initialLoadDone]); 
 
 
 
@@ -158,6 +168,7 @@ const loadEmployees = useCallback(async () => {
   const handleDelete = async (id: number) => {
     await deleteEmployee(id);
     setEmployees(employees.filter(employee => employee.id !== id));
+    await loadEmployees(true);
   };
 
   useEffect(() => {
@@ -210,7 +221,7 @@ const loadEmployees = useCallback(async () => {
           مدیریت پرسنل
         </Title>
         <span className="personnelCount">
-          تعداد کل پرسنل: {employees.length}
+          تعداد کل پرسنل: {totalEmployeesCount}
         </span>
       </div>
      
