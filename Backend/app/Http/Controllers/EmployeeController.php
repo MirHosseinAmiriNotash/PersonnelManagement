@@ -145,7 +145,7 @@ class EmployeeController extends Controller{
 
             return response()->json($employee);
         }   
-        return response()->json(['message' => 'کارمند یافت نشد'],status: 200);   
+        return response()->json(['message' => 'کارمند یافت نشد'],status: 404);   
     }
 
     /**

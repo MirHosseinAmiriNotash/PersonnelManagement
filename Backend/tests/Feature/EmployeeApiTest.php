@@ -42,6 +42,17 @@ class EmployeeApiTest extends TestCase
     }
 
     /**
+     * Test a 404 is returned when an employee is not found by ID.
+     */
+    public function test_employee_not_found_returns_404(): void{
+        $nonExistentId = 1119999;
+
+        $reponse = $this->getJson("/api/Employees/" . $nonExistentId);
+
+        $reponse->assertStatus(404);
+    }
+
+    /**
      * Test a new employee can be created via API.
      */
     public function test_employee_can_be_created(): void {
