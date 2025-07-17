@@ -185,6 +185,131 @@ class EmployeeApiTest extends TestCase
         $response = $this->postJson('/api/Employees',$employeeDataInvalidEducationLevel);
         $response->assertStatus(422);
         $response->assertJsonValidationErrors(['education_level']);
+
+         $invalidData = [
+            'FirstName' => str_repeat('a',51),
+            'LastName' => $this->faker->lastName(),
+            'department' => $this->faker->word(),
+            'personnel_code' => (string) $this->faker->unique()->randomNumber(5),
+            'NationalId' => $this->faker->unique()->numerify('##########'),
+            'phone' => $this->faker->numerify('091########'),
+            'hire_date' => $this->faker->dateTimeBetween('-5 years','now')->format('Y-m-d'),
+            'birth_date' => $this->faker->dateTimeBetween('-60 years', '-18 years')->format('Y-m-d'),
+            'education_level' => $this->faker->randomElement(['middle_school', 'diploma', 'associate', 'bachelor', 'master', 'phd']),
+         ];
+        $response = $this->postJson('/api/Employees',$invalidData);
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors(['FirstName']);
+        
+    }
+
+    /**
+     * Test an existing employee can be updated via API.
+     */
+
+    public function test_employee_can_be_updated(): void {
+        $employee = Employee::factory()->create();
+        
+        $updatedEmployeeData = [
+             'FirstName' => 'Updated' . $this->faker->firstName(),
+            'LastName' => 'Updated' . $this->faker->lastName(),
+            'department' => $this->faker->word(),
+            'personnel_code' => (string)$this->faker->unique()->numberBetween(100000, 999999),
+            'NationalId' => (string)$this->faker->unique()->numberBetween(1000000000, 9999999999),
+            'phone' => '09' . $this->faker->unique()->numberBetween(100000000, 999999999),
+            'hire_date' => Carbon::today()->subYears(5)->format('Y-m-d'), 
+            'birth_date' => Carbon::today()->subYears(30)->format('Y-m-d'), 
+            'education_level' => $this->faker->randomElement(['bachelor', 'master', 'phd']), 
+        ];
+
+        $response = $this -> putJson('/api/Employees/' . $employee->id , $updatedEmployeeData);
+        
+        $response->assertStatus(200);
+            
+        $this->assertDatabaseHas('Employee',[
+            'id' => $employee -> id,
+            'FirstName' => $updatedEmployeeData['FirstName'],
+            'LastName' => $updatedEmployeeData['LastName'],
+            'department' => $updatedEmployeeData['department'],
+            'personnel_code' => $updatedEmployeeData['personnel_code'],
+            'phone' => $updatedEmployeeData['phone'],
+            'hire_date' => $updatedEmployeeData['hire_date'],
+            'birth_date' => $updatedEmployeeData['birth_date'],
+            'education_level' => $updatedEmployeeData['education_level'],
+        ]);
+
+
+        $response -> assertJsonFragment([
+            'FirstName' => $updatedEmployeeData['FirstName'],
+            'LastName' => $updatedEmployeeData['LastName'],
+            'department' => $updatedEmployeeData['department'],
+            'personnel_code' => $updatedEmployeeData['personnel_code'],
+            'NationalId' => $updatedEmployeeData['NationalId'],
+            'phone' => $updatedEmployeeData['phone'],
+            'hire_date' => $updatedEmployeeData['hire_date'],
+            'birth_date' => $updatedEmployeeData['birth_date'],
+            'education_level' => $updatedEmployeeData['education_level'],
+        ]);
+        
+        
+    }
+
+    
+
+    /**
+     * Test employee update fails with validation errors.
+     */
+    public function test_employee_update_fails_with_validation_errors(): void {
+        $employee = Employee::factory()->create();
+        
+        $invalidData1 = [
+            'hire_date' => 'not-a-date',
+        ];
+
+        $response = $this->putJson('/api/Employees/' . $employee->id, $invalidData1);
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors(['hire_date']);
+
+        
+        $invalidData2 = [
+            'education_level' => 'unknowen-level'
+        ];
+
+        $response = $this->putJson('/api/Employees/' . $employee->id, $invalidData2);
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors(['education_level']);
+        
+        $anotherEmployee = Employee::factory()->create();
+        $duplicateData  = [
+            'personnel_code' => $anotherEmployee->personnel_code,
+        ];
+        
+        $response = $this->putJson('/api/Employees/' . $employee->id, $duplicateData);
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors(['personnel_code']);
+
+        $duplicateData = [
+            'NationalId' => $anotherEmployee->NationalId,
+        ];
+
+        $response = $this->putJson('/api/Employees/' . $employee->id, $duplicateData);
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors(['NationalId']);
+
+        $duplicateData = [
+            'phone' => $anotherEmployee->phone, 
+        ];
+        $response = $this->putJson('/api/Employees/' . $employee->id, $duplicateData);
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors(['phone']);
+
+
+        $invalidData3 = [
+            'FirstName' => str_repeat('a',51),
+        ];
+        $response = $this->putJson('/api/Employees/' . $employee->id, $invalidData3);
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors(['FirstName']);
         
     }
 }
