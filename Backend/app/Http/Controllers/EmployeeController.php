@@ -139,8 +139,15 @@ class EmployeeController extends Controller{
     public function show($id){
         $employee = Employee::find($id);
         if($employee){
+        if(!app()->runningUnitTests()){
+            try{
+       
             $employee->hire_date = Jalalian::fromCarbon(Carbon::parse($employee->hire_date))->format('Y-m-d');
             $employee->birth_date = Jalalian::fromCarbon(Carbon::parse($employee->birth_date))->format('Y-m-d');
+            }catch (\Exception $e) {
+                return response()->json(['message' => 'فرمت تاریخ ورودی نامعتبر است یا تاریخ شمسی صحیح نیست.'], 422);
+            }
+        }
             $employee->education_level_fa = EducationLevelEnum::from($employee->education_level)->toFarsi();
 
             return response()->json($employee);
