@@ -312,4 +312,40 @@ class EmployeeApiTest extends TestCase
         $response->assertJsonValidationErrors(['FirstName']);
         
     }
+
+    
+
+    /**
+     * Test an employee can be deleted via API.
+     */
+     public function test_employee_can_be_deleted(): void {
+        $employee = Employee::factory()->create();
+
+        $this->assertCount(1, Employee::all());
+
+        $response = $this->deleteJson('/api/Employees/' . $employee->id);
+
+        $response->assertStatus(200);
+        $this->assertDatabaseMissing('Employee',['id' => $employee->id]);
+        $this->assertCount(0,Employee::all());
+        $response->assertJson(['message' => 'کارمند با موفقیت حذف شد']);
+     }
+
+     
+     
+    /**
+     * Test employee deletion fails when employee is not found.
+     */
+    public function test_employee_deletion_fails_when_not_found(): void{
+        
+        $this->assertCount(0, Employee::all());
+        
+        $nonExistentId = 999; 
+       
+        $response = $this->deleteJson('/api/Employees/' . $nonExistentId);
+        $response->assertStatus(404);        
+        $response->assertJson(['message' => 'کارمند یافت نشد']);
+
+        $this->assertCount(0, Employee::all());
+    }
 }
