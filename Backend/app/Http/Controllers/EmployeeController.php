@@ -12,7 +12,6 @@ use Illuminate\Validation\Rule;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
-
 class EmployeeController extends Controller{
 
 
@@ -108,24 +107,22 @@ class EmployeeController extends Controller{
                 }
                 $data['education_level'] = $enum->value;
                 
-                if(!app()->runningUnitTests()){
-                    try{
+               
+                   
                 $data['hire_date'] = Jalalian::fromformat('Y-m-d', $data['hire_date'])->toCarbon()
                 ->toDateString();
                 $data['birth_date'] = Jalalian::fromFormat('Y-m-d',$data['birth_date'])->toCarbon()
                 ->toDateString();
-                    }catch(\Exception $e){
-                        return response()->json(['message'=>'فرمت تاریخ ورودی نامعتبر است یا تاریخ شمسی صحیح نیست.'],422);
-                }
-            }
+                 
+            
                 $employee = Employee::create($data);
-            if(!app()->runningUnitTests()){
+            
              
                 $employee->hire_date = Jalalian::fromCarbon(Carbon::parse($employee->hire_date))->format('Y-m-d');
                 $employee->birth_date = Jalalian::fromCarbon(Carbon::parse($employee->birth_date))->format('Y-m-d');
 
                 
-            }
+            
                 return response()->json([
                     'message' => 'اطلاعات کارمند با موفقیت ثبت شد',
                     'Employee' => $employee
@@ -221,26 +218,24 @@ class EmployeeController extends Controller{
                $data['education_level'] = $enum->value;
             }
 
-            if (!app()->runningUnitTests()) {
-                try{
+
+               
             if (isset($data['hire_date'])) {
                 $data['hire_date'] = Jalalian::fromFormat('Y-m-d', $data['hire_date'])->toCarbon()->toDateString();
             }
             if (isset($data['birth_date'])) {
                 $data['birth_date'] = Jalalian::fromFormat('Y-m-d', $data['birth_date'])->toCarbon()->toDateString();
             }
-          }catch (\Exception $e) {
-                return response()->json(['message' => 'فرمت تاریخ ورودی نامعتبر است یا تاریخ شمسی صحیح نیست.'], 422);
-            }
-        }
+          
+        
 
             $employee->update($data);
 
             $responseEmployee = $employee->fresh(); 
-            if(!app()->runningUnitTests()){
+            
             $responseEmployee->hire_date = Jalalian::fromCarbon(Carbon::parse($responseEmployee->hire_date))->format('Y-m-d');
             $responseEmployee->birth_date = Jalalian::fromCarbon(Carbon::parse($responseEmployee->birth_date))->format('Y-m-d');
-            }
+            
             return response()->json(data: [
                 'message' => 'کارمند با موفقیت به روزرسانی شد',
                 'employee'=> $responseEmployee 
