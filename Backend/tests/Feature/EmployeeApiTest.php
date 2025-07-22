@@ -16,15 +16,8 @@ class EmployeeApiTest extends TestCase
 
      protected function generateRandomNationalId(): string{
         $faker = Faker::create('fa_IR');
-
-        if (rand(0, 1) === 0) {
- 
             return $faker->unique()->numerify('##########');
-        } else {
- 
- 
-            return '0' . $faker->unique()->numerify('##########');
-        }
+       
     }
     
     /**
@@ -91,7 +84,7 @@ class EmployeeApiTest extends TestCase
     }
 
     /**
-     * Test a new employee can be created via API.
+     * Test a new employee can be created via API. - store()
      */
     public function test_employee_can_be_created(): void {
 
@@ -131,8 +124,8 @@ class EmployeeApiTest extends TestCase
             'personnel_code' => $employeeData['personnel_code'],
             'NationalId' => $employeeData['NationalId'],
             'phone' => $employeeData['phone'],
-            'hire_date' => $employeeData['hire_date'],
-            'birth_date' => $employeeData['birth_date'],
+            'hire_date' => $shamsiHireDate,
+            'birth_date' => $shamsiBirthDate,
             'education_level' => $employeeData['education_level'],
         ]);
 
@@ -143,10 +136,8 @@ class EmployeeApiTest extends TestCase
             'personnel_code' => $employeeData['personnel_code'],
             'NationalId' => $employeeData['NationalId'],
             'phone' => $employeeData['phone'],
-            'hire_date' =>  Jalalian::fromformat('Y-m-d',$shamsiHireDate)->toCarbon()
-                ->toDateString(),
-            'birth_date' => Jalalian::fromformat('Y-m-d',$shamsiBirthDate)->toCarbon()
-                ->toDateString(),
+            'hire_date' =>   $gregorianHireDate,
+            'birth_date' =>  $gregorianBirthDate,
             'education_level' => $employeeData['education_level'],
         ]);
 
@@ -155,7 +146,7 @@ class EmployeeApiTest extends TestCase
 
     
     /**
-     * Test employee creation fails with validation errors.
+     * Test employee creation fails with validation errors. - store()
      */
     public function test_employee_creation_fails_with_validation_errors(): void {
         $invalidEmployeeDataMissingFields = [
@@ -265,7 +256,7 @@ class EmployeeApiTest extends TestCase
     }
 
     /**
-     * Test an existing employee can be updated via API.
+     * Test an existing employee can be updated via API. - update()
      */
     public function test_employee_can_be_updated(): void {
         $employee = Employee::factory()->create();
@@ -299,10 +290,8 @@ class EmployeeApiTest extends TestCase
             'department' => $updatedEmployeeData['department'],
             'personnel_code' => $updatedEmployeeData['personnel_code'],
             'phone' => $updatedEmployeeData['phone'],
-            'hire_date' => Jalalian::fromformat('Y-m-d',$shamsiHireDate)->toCarbon()
-                ->toDateString(),
-            'birth_date' => Jalalian::fromformat('Y-m-d',$shamsiBirthDate)->toCarbon()
-                ->toDateString(),
+            'hire_date' => $gregorianHireDate,
+            'birth_date' => $gregorianBirthDate,
             'education_level' => $updatedEmployeeData['education_level'],
         ]);
 
@@ -325,7 +314,7 @@ class EmployeeApiTest extends TestCase
     
 
     /**
-     * Test employee update fails with validation errors.
+     * Test employee update fails with validation errors. - update()
      */
     public function test_employee_update_fails_with_validation_errors(): void {
         $employee = Employee::factory()->create();
@@ -384,7 +373,7 @@ class EmployeeApiTest extends TestCase
     
 
     /**
-     * Test an employee can be deleted via API.
+     * Test an employee can be deleted via API. - destroy()
      */
      public function test_employee_can_be_deleted(): void {
         $employee = Employee::factory()->create();
@@ -402,7 +391,7 @@ class EmployeeApiTest extends TestCase
      
      
     /**
-     * Test employee deletion fails when employee is not found.
+     * Test employee deletion fails when employee is not found. - destroy()
      */
     public function test_employee_deletion_fails_when_not_found(): void{
         
@@ -419,7 +408,7 @@ class EmployeeApiTest extends TestCase
 
 
     /**
-     * Test employees can be searched by first name.
+     * Test employees can be searched by First name. - search()
      */
     public function test_employees_can_be_searched_by_first_name(): void {
         Employee::factory()->create(['FirstName' => 'علی']);
@@ -439,10 +428,35 @@ class EmployeeApiTest extends TestCase
     
     }
 
+
+
+
+    /**
+     * Test employees can be searched by Last name. - search()
+     */
+    public function test_employees_can_be_searched_by_last_name(): void {
+        Employee::factory()->create(['LastName' => 'تفکری']);
+        Employee::factory()->create(['LastName' => 'امیری نوتاش']);
+        Employee::factory()->create(['LastName' => 'فرجی']);
+        Employee::factory()->create(['LastName' => 'پاکدامن']);
+    
+        $response = $this -> getJson('/api/Employees/search?query=فرجی');
+        $response->assertStatus(200);
+        
+        $response->assertJsonCount(1);
+        $response->assertJsonFragment(['LastName' => 'فرجی']);
+        $response->assertJsonMissing(['LastName' => 'تفکری']);
+        $response->assertJsonMissing(['LastName' => 'امیری نوتاش']);
+        $response->assertJsonMissing(['LastName' => 'پاکدامن']);
+
+    
+    }
+
+
     
 
      /**
-     * Test employees can be searched by first name & LastName.
+     * Test employees can be searched by First name & LastName. - search()
      */
       public function test_employees_can_be_searched_by_first_name_and_last_name():void {
         Employee::factory()->create(['FirstName' => 'میرحسین','LastName' => 'امیری نوتاش']);
@@ -464,7 +478,7 @@ class EmployeeApiTest extends TestCase
 
 
      /**
-     * Test employees can be searched by department.
+     * Test employees can be searched by department. - search()
      */
     public function test_employees_can_be_searched_by_department() {
         Employee::factory()->create(['department' => 'فناوری اطلاعات']);
@@ -483,7 +497,7 @@ class EmployeeApiTest extends TestCase
 
 
     /**
-     * Test employees can be searched by personnel_code.
+     * Test employees can be searched by personnel_code. - search()
      */
     public function test_employees_can_be_searched_by_personnel_code() {
         Employee::factory()->create(['personnel_code' => '40010241054013']);
@@ -504,7 +518,7 @@ class EmployeeApiTest extends TestCase
 
 
     /**
-     * Test employees can be searched by NationalId.
+     * Test employees can be searched by NationalId. - search()
      */
     public function test_employees_can_be_searched_by_NationalId() {
         Employee::factory()->create(['NationalId' => '1363526499']);
@@ -525,7 +539,7 @@ class EmployeeApiTest extends TestCase
 
 
     /**
-     * Test employees can be searched by phone.
+     * Test employees can be searched by phone. - search()
      */
     public function test_employees_can_be_searched_by_phone() {
         Employee::factory()->create(['phone' => '09308141122']);
@@ -545,7 +559,7 @@ class EmployeeApiTest extends TestCase
 
 
      /**
-     * Test employees can be searched by education_level.
+     * Test employees can be searched by education_level. - search()
      */
     public function test_employees_can_be_searched_by_education_level() {
         Employee::factory()->create(['education_level' => 'middle_school']);
@@ -569,6 +583,70 @@ class EmployeeApiTest extends TestCase
         $response->assertJsonMissing(['education_level' => 'phd']);
         
     }
+
+
+
+    /**
+     * Test employees search returns empty when no matching results are found. - search()
+     */
+    public function test_employees_search_returns_empty_when_no_matches() {
+        Employee::factory()->create([
+            'FirstName' => 'میرحسین',
+            'LastName' => 'امیری نوتاش',
+            'department' => 'فناوری اطلاعات',
+            'personnel_code' => '40010241054013',
+            'NationalId' => '1363526499',
+            'phone' => '09308141122',
+            'hire_date' => '2020-01-01',
+            'birth_date' => '1382-06-27',
+            'education_level' => 'master',
+        ]);
+         Employee::factory()->create([
+            'FirstName' => 'امیر عطا',
+            'LastName' => 'فرجی',
+            'department' => 'فناوری اطلاعات',
+            'personnel_code' => '40010241054014',
+            'NationalId' => '1363526433',
+            'phone' => '09308141133',
+            'hire_date' => '2020-01-03',
+            'birth_date' => '1380-02-08',
+            'education_level' => 'master',
+        ]);
+
+        $reponse = $this -> getJson('/api/Employees/search?query=علی');
+
+        $reponse->assertStatus(200);
+        $reponse->assertJson([]);
+        $reponse->assertJsonCount(0);
+
+    }
+
+
+
+
+
+    /**
+     * Test employees search returns all employees when query is empty or whitespace. - search()
+     */
+    public function test_employees_search_returns_all_employees_with_empty_query() {
+        Employee::factory()->count(5)->create();
+
+        $reponse = $this -> getJson('/api/Employees/search?query=');
+
+        $reponse->assertStatus(200);
+        $reponse->assertJsonCount(5);
+        
+
+        $response = $this->getJson('/api/Employees/search?query=%20%20%20'); 
+        $response->assertStatus(200);
+        $response->assertJsonCount(5);
+
+    }
+
+
+
+    
+    
 
     
 }

@@ -23,15 +23,9 @@ class EmployeeFactory extends Factory
      */
       protected function generateRandomNationalId(): string{
         $faker = Faker::create('fa_IR');
-
-        if (rand(0, 1) === 0) {
  
             return $faker->unique()->numerify('##########');
-        } else {
- 
- 
-            return '0' . $faker->unique()->numerify('##########');
-        }
+    
     }
     public function definition(): array
     {
