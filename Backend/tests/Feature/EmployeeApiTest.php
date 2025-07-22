@@ -646,7 +646,40 @@ class EmployeeApiTest extends TestCase
 
 
     
+    /**
+     * Test employees can be exported to Excel. - exportExcel()
+     */
+     public function test_employees_can_be_exported_to_excel() {
+        Employee::factory()->count(3)->create();
+
+        $response = $this -> get('/api/export-employees');
+
+        $response->assertStatus(200);
+        $response->assertHeader('Content-Type' , 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        $response->assertHeader('Content-Disposition' , 'attachment; filename="employees.xlsx"');
+        $this->assertNotEmpty($response->getContent());
+     }
+
+     
+
+     /**
+     * test employees export empt when no employees exist. - exportExcel()
+     */
+     public function test_employees_export_empty_when_no_employees_exist() {
     
+        Employee::query()->delete(); 
+
+        $response = $this->get('/api/export-employees');
+
+        $response->assertStatus(200);
+        $response->assertHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        $response->assertHeader('Content-Disposition', 'attachment; filename="employees.xlsx"');
+   
+
+        $this->assertNotEmpty($response->getContent()); 
+   
+   
+}
 
     
 }
