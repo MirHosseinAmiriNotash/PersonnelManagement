@@ -49,8 +49,8 @@ function EmployeeForm({
       NationalId: (value) => {
         if (!value || value.trim().length === 0) return "کد ملی را وارد کنید";
 
-        if (!/^(0\d{10}|\d{10})$/.test(value)) {
-          return "کد ملی باید ۱۰ یا ۱۱ رقمی باشد(11 رقم با 0 پیشوند)";
+        if (!/^(\d{10})$/.test(value)) {
+          return "کد ملی باید ۱۰ رقم باشد";
         }
         return null;
       },
@@ -155,7 +155,7 @@ function EmployeeForm({
           placeholder="مثال: 13635XXXXX"
           type="text"
           onChange={(event) =>
-            handleNumericInputChange(event, "NationalId", 11)
+            handleNumericInputChange(event, "NationalId", 10)
           }
           value={form.values.NationalId}
           error={form.errors.NationalId}

@@ -12,7 +12,6 @@ use Illuminate\Validation\Rule;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
-
 class EmployeeController extends Controller{
 
 
@@ -60,7 +59,7 @@ class EmployeeController extends Controller{
             'LastName' => 'required|string|max:50',
             'department' => 'required|string|max:50',
             'personnel_code' => 'required|string|max:25|unique:Employee,personnel_code',
-            'NationalId' => 'required|string|min:10|max:11|unique:Employee,NationalId',
+            'NationalId' => 'required|string|digits:10|regex:/^\d{10}$/|unique:Employee,NationalId',
             'phone' => 'required|string|min:11|max:15|unique:Employee,phone',
             'hire_date' => 'required|date_format:Y-m-d', 
             'birth_date' => 'required|date_format:Y-m-d',
@@ -68,7 +67,7 @@ class EmployeeController extends Controller{
             
       ], [
             'FirstName.required' => 'نام الزامی است',
-                    'FirstName.max' => 'نام نباید بیشتر از 5 کاراکتر باشد',
+                    'FirstName.max' => 'نام نباید بیشتر از 50 کاراکتر باشد',
                     'LastName.required' => 'نام خانوادگی الزامی است',
                     'LastName.max' => 'نام خانوادگی نباید بیش از ۵۰ کاراکتر باشد',
                     'department.required' => 'دپارتمان الزامی است',
@@ -77,8 +76,7 @@ class EmployeeController extends Controller{
                     'personnel_code.max' => 'کد پرسنلی نباید بیش از ۲۵ کاراکتر باشد',
                     'personnel_code.unique' => 'کد پرسنلی قبلاً استفاده شده است',
                     'NationalId.required' => 'کدملی الزامی است',
-                    'NationalId.min' => 'کدملی باید حداقل ۱۰ رقم باشد',
-                    'NationalId.max' => 'کدملی نباید بیش از ۱۱ رقم باشد',
+                    'NationalId.digits' => 'کدملی باید ۱۰ رقم باشد',
                     'NationalId.unique' => 'کدملی قبلاً استفاده شده است',
                     'phone.required' => 'شماره تلفن الزامی است',
                     'phone.min' => 'شماره تلفن نبایدحداقل باید 11 رقم باشد',
@@ -108,24 +106,22 @@ class EmployeeController extends Controller{
                 }
                 $data['education_level'] = $enum->value;
                 
-                if(!app()->runningUnitTests()){
-                    try{
+               
+                   
                 $data['hire_date'] = Jalalian::fromformat('Y-m-d', $data['hire_date'])->toCarbon()
                 ->toDateString();
                 $data['birth_date'] = Jalalian::fromFormat('Y-m-d',$data['birth_date'])->toCarbon()
                 ->toDateString();
-                    }catch(\Exception $e){
-                        return response()->json(['message'=>'فرمت تاریخ ورودی نامعتبر است یا تاریخ شمسی صحیح نیست.'],422);
-                }
-            }
+                 
+            
                 $employee = Employee::create($data);
-            if(!app()->runningUnitTests()){
+            
              
                 $employee->hire_date = Jalalian::fromCarbon(Carbon::parse($employee->hire_date))->format('Y-m-d');
                 $employee->birth_date = Jalalian::fromCarbon(Carbon::parse($employee->birth_date))->format('Y-m-d');
 
                 
-            }
+            
                 return response()->json([
                     'message' => 'اطلاعات کارمند با موفقیت ثبت شد',
                     'Employee' => $employee
@@ -139,13 +135,20 @@ class EmployeeController extends Controller{
     public function show($id){
         $employee = Employee::find($id);
         if($employee){
+        if(!app()->runningUnitTests()){
+            try{
+       
             $employee->hire_date = Jalalian::fromCarbon(Carbon::parse($employee->hire_date))->format('Y-m-d');
             $employee->birth_date = Jalalian::fromCarbon(Carbon::parse($employee->birth_date))->format('Y-m-d');
+            }catch (\Exception $e) {
+                return response()->json(['message' => 'فرمت تاریخ ورودی نامعتبر است یا تاریخ شمسی صحیح نیست.'], 422);
+            }
+        }
             $employee->education_level_fa = EducationLevelEnum::from($employee->education_level)->toFarsi();
 
             return response()->json($employee);
         }   
-        return response()->json(['message' => 'کارمند یافت نشد'],status: 200);   
+        return response()->json(['message' => 'کارمند یافت نشد'],status: 404);   
     }
 
     /**
@@ -159,7 +162,7 @@ class EmployeeController extends Controller{
                 'LastName' => 'sometimes|required|string|max:50',
                 'department' => 'sometimes|required|string|max:50',
                 'personnel_code' => 'sometimes|required|string|max:25|unique:Employee,personnel_code,' . $id,
-                'NationalId' => 'sometimes|required|string|min:10|max:11|unique:Employee,NationalId,' .$id,
+                'NationalId' => 'sometimes|required|string|digits:10|regex:/^\d{10}$/|unique:Employee,NationalId,' .$id,
                 'phone' => 'sometimes|required|string|min:11|max:15|unique:Employee,phone,' . $id,
                 'hire_date' => 'sometimes|required|date_format:Y-m-d',
                 'birth_date' => 'sometimes|required|date_format:Y-m-d',
@@ -175,8 +178,7 @@ class EmployeeController extends Controller{
                 'personnel_code.max' => 'کد پرسنلی نباید بیش از ۲۵ کاراکتر باشد',
                 'personnel_code.unique' => 'کد پرسنلی قبلاً استفاده شده است',
                 'NationalId.required' => 'کدملی الزامی است',
-                'NationalId.min' => 'کدملی باید حداقل ۱۰ رقم باشد',
-                'NationalId.max' => 'کدملی نباید بیش از ۱۱ رقم باشد',
+                'NationalId.digits' => 'کدملی باید ۱۰ رقم باشد',
                 'NationalId.unique' => 'کدملی قبلاً استفاده شده است',
                 'phone.required' => 'شماره تلفن الزامی است',
                 'phone.min' => 'شماره تلفن نبایدحداقل باید 11 رقم باشد',
@@ -214,26 +216,24 @@ class EmployeeController extends Controller{
                $data['education_level'] = $enum->value;
             }
 
-            if (!app()->runningUnitTests()) {
-                try{
+
+               
             if (isset($data['hire_date'])) {
                 $data['hire_date'] = Jalalian::fromFormat('Y-m-d', $data['hire_date'])->toCarbon()->toDateString();
             }
             if (isset($data['birth_date'])) {
                 $data['birth_date'] = Jalalian::fromFormat('Y-m-d', $data['birth_date'])->toCarbon()->toDateString();
             }
-          }catch (\Exception $e) {
-                return response()->json(['message' => 'فرمت تاریخ ورودی نامعتبر است یا تاریخ شمسی صحیح نیست.'], 422);
-            }
-        }
+          
+        
 
             $employee->update($data);
 
             $responseEmployee = $employee->fresh(); 
-            if(!app()->runningUnitTests()){
+            
             $responseEmployee->hire_date = Jalalian::fromCarbon(Carbon::parse($responseEmployee->hire_date))->format('Y-m-d');
             $responseEmployee->birth_date = Jalalian::fromCarbon(Carbon::parse($responseEmployee->birth_date))->format('Y-m-d');
-            }
+            
             return response()->json(data: [
                 'message' => 'کارمند با موفقیت به روزرسانی شد',
                 'employee'=> $responseEmployee 
