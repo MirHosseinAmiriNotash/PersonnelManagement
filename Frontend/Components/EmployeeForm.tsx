@@ -117,7 +117,7 @@ function EmployeeForm({
   };
 
   return (
-    <form onSubmit={form.onSubmit(handleSubmit)}>
+    <form id="form" onSubmit={form.onSubmit(handleSubmit)}>
       <div
         className="mainform"
         style={{
@@ -203,7 +203,7 @@ function EmployeeForm({
             }}
           />
           {form.errors.hire_date && (
-            <Text size="xs" color="red" mt={4}>
+            <Text id="EmployeeHire_date-error" size="xs" color="red" mt={4}>
               {form.errors.hire_date}
             </Text>
           )}
@@ -229,7 +229,7 @@ function EmployeeForm({
             }}
           />
           {form.errors.birth_date && (
-            <Text size="xs" color="red" mt={4}>
+            <Text id="EmployeeBirth_date-error" size="xs" color="red" mt={4}>
               {form.errors.birth_date}
             </Text>
           )}
@@ -237,7 +237,7 @@ function EmployeeForm({
       </div>
 
       <Group className="buttonGoup" justify="flex-end" mt="md">
-        <Button variant="outline" onClick={onCancel}>
+        <Button id="cancelButton" variant="outline" onClick={onCancel}>
           انصراف
         </Button>
         <Button id="saveEmployeeBtn" type="submit" color="blue">
