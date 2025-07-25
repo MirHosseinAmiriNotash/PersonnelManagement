@@ -201,6 +201,7 @@ const EmployeeList: React.FC = () => {
           <Button
             variant="outline"
             size="xs"
+            className="EditButton"
             onClick={() => handleEdit(employee)}
           >
             ویرایش
