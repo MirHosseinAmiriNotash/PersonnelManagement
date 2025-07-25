@@ -245,6 +245,7 @@ const EmployeeList: React.FC = () => {
       ) : (
         <>
           <TextInput
+            id="searchinp"
             placeholder="جستجو"
             value={searchItem}
             onChange={(event) => setSearchItem(event.currentTarget.value)}
