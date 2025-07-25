@@ -261,7 +261,12 @@ const EmployeeList: React.FC = () => {
             <Title className="titel" order={4} mb="lg">
               لیست پرسنل :
             </Title>
-            <Button onClick={handleExportExcel} variant="light" color="green">
+            <Button
+              id="exportExcelBtn"
+              onClick={handleExportExcel}
+              variant="light"
+              color="green"
+            >
               خروجی اکسل
             </Button>
             <Button
