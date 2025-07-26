@@ -208,6 +208,7 @@ const EmployeeList: React.FC = () => {
           </Button>
 
           <Button
+            className="DeleteButton"
             variant="outline"
             color="red"
             size="xs"

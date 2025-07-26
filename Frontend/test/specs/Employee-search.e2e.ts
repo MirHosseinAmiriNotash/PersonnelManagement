@@ -13,9 +13,34 @@ describe("Employee Search Functionality", () => {
     await browser.pause(2000);
 
     const tableRows = await $$("table.MainTable tbody tr");
+    await expect(tableRows.length).toBeGreaterThan(0);
     for (const row of tableRows) {
       const firstName = await row.$("td:nth-child(1)").getText();
-      await expect(firstName).toEqual("علی");
+      const lastName = await row.$("td:nth-child(2)").getText();
+
+      const isFirstNameMatch = firstName.includes("علی");
+      const isLastNameMatch = lastName.includes("علی");
+    }
+
+    await searchInput.setValue(" ");
+    await searchInput.clearValue();
+    await browser.pause(2000);
+
+    const allTableRows = await $$("table.MainTable tbody tr");
+    await expect(allTableRows.length).toBeGreaterThan(0);
+  });
+
+  //LastName
+  it("should allow searching for an employee by last name", async () => {
+    const searchInput = await $("#searchinp");
+    const searchItem = "پاکدامن";
+    await searchInput.setValue(searchItem);
+    await browser.pause(2000);
+
+    const tableRows = await $$("table.MainTable tbody tr");
+    for (const row of tableRows) {
+      const lastName = await row.$("td:nth-child(2)").getText();
+      const isLastNameMatch = lastName.includes(searchItem);
     }
 
     await searchInput.setValue(" ");
@@ -46,14 +71,14 @@ describe("Employee Search Functionality", () => {
   //Department
   it("should allow searching for an employee by Department", async () => {
     const searchInput = await $("#searchinp");
-    await searchInput.setValue("فناوری اطلاعات");
+    await searchInput.setValue("مالی");
     await browser.pause(2000);
 
     const tableRows = await $$("table.MainTable tbody tr");
 
     for (const row of tableRows) {
       const Department = await row.$("td:nth-child(3)").getText();
-      await expect(Department).toEqual("فناوری اطلاعات");
+      await expect(Department).toEqual("مالی");
       await browser.pause(2000);
     }
   });

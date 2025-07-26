@@ -17,6 +17,7 @@ describe("Employee Management", () => {
     );
 
     await editButton.click();
+    await browser.pause(2000);
 
     const fname = await $("#EmployeeFname");
     fname.clearValue();
