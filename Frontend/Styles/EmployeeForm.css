@@ -30,13 +30,13 @@
   background-color: rgb(46, 46, 46);
 }
 .rmdp-input:focus {
-  border-color: #228be6;
+  border-color: #228be6 !important;
   box-shadow: 0 0 0 1px #228be6;
 }
 .mainform {
-  padding: 20px;
+  padding: 5px 20px;
 }
 
 .buttonGoup {
-  padding: 12px;
+  padding: 10px;
 }

@@ -1,9 +1,9 @@
 :root {
   --title-text-color: #e0ffff;
-  --header-backgroundcolor:linear-gradient(to right, #ec6ead, #3494e6);
-  --persennelCount-color : hsl(136, 0%, 100%);
-  --table-title-color : hsl(0, 0%, 100%);
-  --table-th-color : hsl(60, 100%, 100%);
+  --header-backgroundcolor: linear-gradient(to right, #ec6ead, #3494e6);
+  --persennelCount-color: hsl(136, 0%, 100%);
+  --table-title-color: hsl(0, 0%, 100%);
+  --table-th-color: hsl(60, 100%, 100%);
 }
 .TableHeader {
   text-align: center !important;

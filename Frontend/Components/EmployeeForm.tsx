@@ -14,6 +14,7 @@ const educationLevelOptions = [
   { value: "master", label: "فوق لیسانس" },
   { value: "phd", label: "دکترا" },
 ];
+console.log(educationLevelOptions[5]);
 
 interface EmployeeFormProps {
   initialValues?: Partial<Employee>;
@@ -116,7 +117,7 @@ function EmployeeForm({
   };
 
   return (
-    <form onSubmit={form.onSubmit(handleSubmit)}>
+    <form id="form" onSubmit={form.onSubmit(handleSubmit)}>
       <div
         className="mainform"
         style={{
@@ -126,21 +127,25 @@ function EmployeeForm({
         }}
       >
         <TextInput
+          id="EmployeeFname"
           label="نام"
           maxLength={50}
           {...form.getInputProps("FirstName")}
         />
         <TextInput
+          id="EmployeeLname"
           label="نام خانوادگی"
           maxLength={50}
           {...form.getInputProps("LastName")}
         />
         <TextInput
+          id="EmployeeDepartment"
           label="دپارتمان"
           maxLength={50}
           {...form.getInputProps("department")}
         />
         <TextInput
+          id="EmployeePersonnel_code"
           label="کد پرسنلی"
           placeholder="مثال: 12345"
           type="text"
@@ -151,6 +156,7 @@ function EmployeeForm({
           error={form.errors.personnel_code}
         />
         <TextInput
+          id="EmployeeNid"
           label="کدملی"
           placeholder="مثال: 13635XXXXX"
           type="text"
@@ -161,6 +167,7 @@ function EmployeeForm({
           error={form.errors.NationalId}
         />
         <TextInput
+          id="EmployeePhoneNumber"
           label="تلفن"
           placeholder="مثال: 0914XXXXXXX"
           type="text"
@@ -169,6 +176,7 @@ function EmployeeForm({
           error={form.errors.phone}
         />
         <Select
+          id="EmployeeEducation_level"
           label="سطح تحصیلات"
           data={educationLevelOptions}
           {...form.getInputProps("education_level")}
@@ -177,7 +185,7 @@ function EmployeeForm({
         <Box mb="sm">
           <Text className="DateTitle">تاریخ استخدام</Text>
           <DatePicker
-            required
+            id="EmployeeHire_date"
             className="Date"
             inputClass="rmdp-input"
             format="YYYY-MM-DD"
@@ -194,12 +202,17 @@ function EmployeeForm({
               form.setFieldValue("hire_date", englishNumeralsFormatted);
             }}
           />
+          {form.errors.hire_date && (
+            <Text id="EmployeeHire_date-error" size="xs" color="red" mt={4}>
+              {form.errors.hire_date}
+            </Text>
+          )}
         </Box>
 
         <Box mb="sm">
           <Text className="DateTitle">تاریخ تولد</Text>
           <DatePicker
-            required
+            id="EmployeeBirth_date"
             className="Date"
             inputClass="rmdp-input"
             format="YYYY-MM-DD"
@@ -215,14 +228,19 @@ function EmployeeForm({
               form.setFieldValue("birth_date", englishNumeralsFormatted);
             }}
           />
+          {form.errors.birth_date && (
+            <Text id="EmployeeBirth_date-error" size="xs" color="red" mt={4}>
+              {form.errors.birth_date}
+            </Text>
+          )}
         </Box>
       </div>
 
       <Group className="buttonGoup" justify="flex-end" mt="md">
-        <Button variant="outline" onClick={onCancel}>
+        <Button id="cancelButton" variant="outline" onClick={onCancel}>
           انصراف
         </Button>
-        <Button type="submit" color="blue">
+        <Button id="saveEmployeeBtn" type="submit" color="blue">
           {initialValues ? "ذخیره تغییرات" : "افزودن کارمند"}
         </Button>
       </Group>
